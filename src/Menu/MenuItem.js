@@ -18,9 +18,6 @@ export const styles = (theme: Object) => ({
     '&:focus': {
       background: theme.palette.text.divider,
     },
-    '&:hover': {
-      backgroundColor: theme.palette.text.divider,
-    },
   },
   selected: {
     backgroundColor: theme.palette.text.divider,

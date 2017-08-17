@@ -45,7 +45,6 @@ export const styles = (theme: Object) => ({
     }),
     '&:hover': {
       textDecoration: 'none',
-      backgroundColor: theme.palette.text.divider,
       '&$disabled': {
         backgroundColor: 'transparent',
       },
