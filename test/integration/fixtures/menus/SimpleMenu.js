@@ -1,34 +1,26 @@
-// @flow
-
-import React, { Component } from 'react';
+import React from 'react';
 import Menu, { MenuItem } from 'src/Menu';
 
 const options = ['Menu Item 1', 'Menu Item 2', 'Menu Item 3'];
 
-class SimpleMenu extends Component {
+class SimpleMenu extends React.Component {
   state = {
-    anchorEl: undefined,
     open: false,
     selectedIndex: undefined,
   };
 
-  handleMenuItemClick = (event: SyntheticUIEvent, index: number) => {
+  handleMenuItemClick = (event, index) => {
     this.setState({ selectedIndex: index, open: false });
   };
 
-  handleRequestClose = () => {
+  handleClose = () => {
     this.setState({ open: false });
   };
 
   render() {
     return (
       <div data-mui-test="SimpleMenu">
-        <Menu
-          id="simple-menu"
-          open={this.state.open}
-          onRequestClose={this.handleRequestClose}
-          {...this.props}
-        >
+        <Menu id="simple-menu" open={this.state.open} onClose={this.handleClose} {...this.props}>
           {options.map((label, index) => {
             return (
               <MenuItem

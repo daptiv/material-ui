@@ -1,14 +1,11 @@
-// @flow
-
-import React, { Children, Component } from 'react';
-import type { Element } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { isDirty } from '../Input/Input';
-import { isMuiComponent } from '../utils/reactHelpers';
+import { isDirty, isAdornedStart } from '../Input/Input';
+import { isMuiElement } from '../utils/reactHelpers';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     display: 'inline-flex',
     flexDirection: 'column',
@@ -32,102 +29,48 @@ export const styles = (theme: Object) => ({
   },
 });
 
-type DefaultProps = {
-  disabled: boolean,
-  classes: Object,
-  component: string,
-  error: boolean,
-  fullWidth: boolean,
-  margin: 'none',
-  required: boolean,
-};
-
-export type Props = {
-  /**
-   * The contents of the form control.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component?: string | Function,
-  /**
-   * If `true`, the label, input and helper text should be displayed in a disabled state.
-   */
-  disabled?: boolean,
-  /**
-   * If `true`, the label should be displayed in an error state.
-   */
-  error?: boolean,
-  /**
-   * If `true`, the label will take up the full width of its container.
-   */
-  fullWidth?: boolean,
-  /**
-   * @ignore
-   */
-  onBlur?: Function,
-  /**
-   * @ignore
-   */
-  onFocus?: Function,
-  /**
-   * If `true`, the label will indicate that the input is required.
-   */
-  required?: boolean,
-  /**
-   * If `dense` | `normal`, will adjust vertical spacing of this and contained components.
-   */
-  margin?: 'none' | 'dense' | 'normal',
-};
-
-type AllProps = DefaultProps & Props;
-
-type State = {
-  dirty: boolean,
-  focused: boolean,
-};
-
 /**
  * Provides context such as dirty/focused/error/required for form inputs.
+ * Relying on the context provides high flexibilty and ensures that the state always stay
+ * consitent across the children of the `FormControl`.
+ * This context is used by the following components:
+ *  - FormLabel
+ *  - FormHelperText
+ *  - Input
+ *  - InputLabel
  */
-class FormControl extends Component<DefaultProps, AllProps, State> {
-  props: AllProps;
+class FormControl extends React.Component {
+  constructor(props, context) {
+    super(props, context);
 
-  static defaultProps = {
-    classes: {},
-    component: 'div',
-    disabled: false,
-    error: false,
-    fullWidth: false,
-    margin: 'none',
-    required: false,
-  };
+    // We need to iterate through the children and find the Input in order
+    // to fully support server side rendering.
+    const { children } = this.props;
+    if (children) {
+      React.Children.forEach(children, child => {
+        if (isMuiElement(child, ['Input', 'Select']) && isDirty(child.props, true)) {
+          this.state.dirty = true;
+        }
+        if (isMuiElement(child, ['Input']) && isAdornedStart(child.props)) {
+          this.state.adornedStart = true;
+        }
+      });
+    }
+  }
 
-  static childContextTypes = {
-    muiFormControl: PropTypes.object.isRequired,
-  };
-
-  state: State = {
+  state = {
+    adornedStart: false,
     dirty: false,
     focused: false,
   };
 
   getChildContext() {
     const { disabled, error, required, margin } = this.props;
-    const { dirty, focused } = this.state;
+    const { adornedStart, dirty, focused } = this.state;
 
     return {
       muiFormControl: {
+        adornedStart,
         dirty,
         disabled,
         error,
@@ -142,32 +85,21 @@ class FormControl extends Component<DefaultProps, AllProps, State> {
     };
   }
 
-  componentWillMount() {
-    // We need to iterate through the children and find the Input in order
-    // to fully support server side rendering.
-    Children.forEach(this.props.children, child => {
-      if (isMuiComponent(child, 'Input') && isDirty(child.props, true)) {
-        this.setState({ dirty: true });
-      }
-    });
-  }
-
   handleFocus = event => {
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
-    if (!this.state.focused) {
-      this.setState({ focused: true });
-    }
+    this.setState(state => (!state.focused ? { focused: true } : null));
   };
 
   handleBlur = event => {
-    if (this.props.onBlur) {
+    // The event might be undefined.
+    // For instance, a child component might call this hook
+    // when an input is disabled but still having the focus.
+    if (this.props.onBlur && event) {
       this.props.onBlur(event);
     }
-    if (this.state.focused) {
-      this.setState({ focused: false });
-    }
+    this.setState(state => (state.focused ? { focused: false } : null));
   };
 
   handleDirty = () => {
@@ -184,19 +116,19 @@ class FormControl extends Component<DefaultProps, AllProps, State> {
 
   render() {
     const {
-      children,
       classes,
       className,
-      component: ComponentProp,
+      component: Component,
       disabled,
       error,
       fullWidth,
       margin,
+      required,
       ...other
     } = this.props;
 
     return (
-      <ComponentProp
+      <Component
         className={classNames(
           classes.root,
           {
@@ -209,11 +141,71 @@ class FormControl extends Component<DefaultProps, AllProps, State> {
         {...other}
         onFocus={this.handleFocus}
         onBlur={this.handleBlur}
-      >
-        {children}
-      </ComponentProp>
+      />
     );
   }
 }
+
+FormControl.propTypes = {
+  /**
+   * The contents of the form control.
+   */
+  children: PropTypes.node,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  /**
+   * If `true`, the label, input and helper text should be displayed in a disabled state.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, the label should be displayed in an error state.
+   */
+  error: PropTypes.bool,
+  /**
+   * If `true`, the component, as well as its children,
+   * will take up the full width of its container.
+   */
+  fullWidth: PropTypes.bool,
+  /**
+   * If `dense` or `normal`, will adjust vertical spacing of this and contained components.
+   */
+  margin: PropTypes.oneOf(['none', 'dense', 'normal']),
+  /**
+   * @ignore
+   */
+  onBlur: PropTypes.func,
+  /**
+   * @ignore
+   */
+  onFocus: PropTypes.func,
+  /**
+   * If `true`, the label will indicate that the input is required.
+   */
+  required: PropTypes.bool,
+};
+
+FormControl.defaultProps = {
+  component: 'div',
+  disabled: false,
+  error: false,
+  fullWidth: false,
+  margin: 'none',
+  required: false,
+};
+
+FormControl.childContextTypes = {
+  muiFormControl: PropTypes.object.isRequired,
+};
 
 export default withStyles(styles, { name: 'MuiFormControl' })(FormControl);

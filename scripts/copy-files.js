@@ -1,9 +1,9 @@
-// @flow weak
 /* eslint-disable no-console */
 
 import path from 'path';
 import fse from 'fs-extra';
 import flowCopySource from 'flow-copy-source';
+import glob from 'glob';
 
 function copyFile(file) {
   const buildPath = path.resolve(__dirname, '../build/', path.basename(file));
@@ -13,6 +13,12 @@ function copyFile(file) {
       resolve();
     });
   }).then(() => console.log(`Copied ${file} to ${buildPath}`));
+}
+
+function copyTypings(from, to) {
+  const files = glob.sync('**/*.d.ts', { cwd: from });
+  const cmds = files.map(file => fse.copy(path.resolve(from, file), path.resolve(to, file)));
+  return Promise.all(cmds);
 }
 
 function createPackageFile() {
@@ -27,35 +33,14 @@ function createPackageFile() {
   })
     .then(data => JSON.parse(data))
     .then(packageData => {
-      const {
-        author,
-        version,
-        description,
-        keywords,
-        repository,
-        license,
-        bugs,
-        homepage,
-        peerDependencies,
-        dependencies,
-      } = packageData;
+      const { nyc, ...packageDataOther } = packageData;
 
       const minimalPackage = {
+        ...packageDataOther,
         name: 'material-ui',
-        author,
-        version,
-        description,
         main: './index.js',
         module: './index.es.js',
-        'jsnext:main': './index.es.js',
-        typings: './index.d.ts',
-        keywords,
-        repository,
-        license,
-        bugs,
-        homepage,
-        peerDependencies,
-        dependencies,
+        private: false,
       };
 
       return new Promise(resolve => {
@@ -70,9 +55,17 @@ function createPackageFile() {
     });
 }
 
-const files = ['README.md', 'CHANGELOG.md', 'LICENSE', 'typings/index.d.ts'];
+const files = ['README.md', 'CHANGELOG.md', 'LICENSE'];
 
-Promise.all(files.map(file => copyFile(file))).then(() => createPackageFile());
+Promise.all(files.map(file => copyFile(file)))
+  .then(() => createPackageFile())
+  .then(() => {
+    const from = path.resolve(__dirname, '../src');
+    return Promise.all([
+      copyTypings(from, path.resolve(__dirname, '../build')),
+      copyTypings(from, path.resolve(__dirname, '../build/es')),
+    ]);
+  });
 
 // Copy original implementation files for flow.
 flowCopySource(['src'], 'build', { verbose: true, ignore: '**/*.spec.js' });

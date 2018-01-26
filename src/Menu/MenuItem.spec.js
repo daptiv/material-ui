@@ -1,9 +1,8 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { spy } from 'sinon';
 import { createShallow, getClasses } from '../test-utils';
+import ListItem from '../List/ListItem';
 import MenuItem from './MenuItem';
 
 describe('<MenuItem />', () => {
@@ -17,7 +16,7 @@ describe('<MenuItem />', () => {
 
   it('should render a button ListItem with with ripple', () => {
     const wrapper = shallow(<MenuItem />);
-    assert.strictEqual(wrapper.name(), 'withStyles(ListItem)');
+    assert.strictEqual(wrapper.type(), ListItem);
     assert.strictEqual(wrapper.props().button, true, 'should have the button prop');
     assert.strictEqual(wrapper.props().disableRipple, undefined, 'should have a ripple');
   });
@@ -45,7 +44,7 @@ describe('<MenuItem />', () => {
 
   it('should have a tabIndex of -1 by default', () => {
     const wrapper = shallow(<MenuItem />);
-    assert.strictEqual(wrapper.props().tabIndex, '-1', 'should have a -1 tabIndex');
+    assert.strictEqual(wrapper.props().tabIndex, -1, 'should have a -1 tabIndex');
   });
 
   describe('event callbacks', () => {

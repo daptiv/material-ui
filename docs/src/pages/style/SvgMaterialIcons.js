@@ -1,5 +1,3 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import AccessAlarmIcon from 'material-ui-icons/AccessAlarm';
@@ -13,7 +11,7 @@ const styles = theme => ({
 });
 
 function SvgMaterialIcons(props) {
-  const classes = props.classes;
+  const { classes } = props;
   return (
     <div>
       <AccessAlarmIcon className={classes.icon} />

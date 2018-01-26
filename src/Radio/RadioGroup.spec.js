@@ -1,9 +1,8 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { spy } from 'sinon';
 import { createShallow, createMount } from '../test-utils';
+import FormGroup from '../Form/FormGroup';
 import RadioGroup from './RadioGroup';
 import Radio from './Radio';
 
@@ -11,18 +10,18 @@ describe('<RadioGroup />', () => {
   let shallow;
 
   before(() => {
-    shallow = createShallow({ dive: true });
+    shallow = createShallow();
   });
 
   it('should render a FormGroup with the radiogroup role', () => {
-    const wrapper = shallow(<RadioGroup />);
-    assert.strictEqual(wrapper.name(), 'withStyles(FormGroup)');
+    const wrapper = shallow(<RadioGroup value="" />);
+    assert.strictEqual(wrapper.type(), FormGroup);
     assert.strictEqual(wrapper.props().role, 'radiogroup');
   });
 
   it('should fire the onBlur callback', () => {
     const handleBlur = spy();
-    const wrapper = shallow(<RadioGroup onBlur={handleBlur} />);
+    const wrapper = shallow(<RadioGroup value="" onBlur={handleBlur} />);
     const event = {};
     wrapper.simulate('blur', event);
     assert.strictEqual(handleBlur.callCount, 1);
@@ -31,7 +30,7 @@ describe('<RadioGroup />', () => {
 
   it('should fire the onKeyDown callback', () => {
     const handleKeyDown = spy();
-    const wrapper = shallow(<RadioGroup onKeyDown={handleKeyDown} />);
+    const wrapper = shallow(<RadioGroup value="" onKeyDown={handleKeyDown} />);
     const event = {};
     wrapper.simulate('keyDown', event);
     assert.strictEqual(handleKeyDown.callCount, 1);
@@ -42,7 +41,7 @@ describe('<RadioGroup />', () => {
     let wrapper;
 
     beforeEach(() => {
-      wrapper = shallow(<RadioGroup />);
+      wrapper = shallow(<RadioGroup value="" />);
     });
 
     it('should focus the first non-disabled radio', () => {
@@ -109,12 +108,22 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  it('should accept invalid child', () => {
+    shallow(
+      <RadioGroup value="">
+        <Radio />
+        {null}
+      </RadioGroup>,
+    );
+  });
+
   describe('children radios fire change event', () => {
     let wrapper;
 
     beforeEach(() => {
       wrapper = shallow(
-        <RadioGroup>
+        <RadioGroup value="">
+          <Radio />
           <Radio />
         </RadioGroup>,
       );
@@ -153,15 +162,15 @@ describe('<RadioGroup />', () => {
 
     it('should add a child', () => {
       const wrapper = mount(
-        <RadioGroup.Naked classes={{}}>
+        <RadioGroup value="">
           <Radio />
-        </RadioGroup.Naked>,
+        </RadioGroup>,
       );
       assert.strictEqual(wrapper.instance().radios.length, 1);
     });
 
     it('should keep radios empty', () => {
-      const wrapper = mount(<RadioGroup.Naked classes={{}} />);
+      const wrapper = mount(<RadioGroup value="" />);
       assert.strictEqual(wrapper.instance().radios.length, 0);
     });
   });

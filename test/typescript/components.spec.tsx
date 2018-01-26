@@ -2,9 +2,10 @@ import * as React from 'react';
 import {
   AppBar,
   Avatar,
+  Backdrop,
   Badge,
   BottomNavigation,
-  BottomNavigationButton,
+  BottomNavigationAction,
   Button,
   Card,
   CardActions,
@@ -14,13 +15,24 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
+  ClickAwayListener,
+  Collapse,
   Dialog,
   DialogTitle,
   Divider,
   Drawer,
+  ExpansionPanel,
+  ExpansionPanelActions,
+  ExpansionPanelDetails,
+  ExpansionPanelSummary,
+  Fade,
   FormControlLabel,
   FormGroup,
+  Grid,
+  GridList,
+  GridListTile,
   IconButton,
+  Input,
   LinearProgress,
   List,
   ListItem,
@@ -29,77 +41,87 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  MobileStepper,
   Paper,
+  Select,
   Snackbar,
   SnackbarContent,
   Switch,
   Tab,
-  Tabs,
-  TextField,
-  Toolbar,
-  Typography,
-} from 'material-ui';
-import Collapse from 'material-ui/transitions/Collapse';
-import { GridList } from 'material-ui/GridList';
-import MobileStepper from 'material-ui/MobileStepper/MobileStepper';
-import Table, {
+  Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-} from 'material-ui/Table';
-import { withStyles, createStyleSheet } from 'material-ui/styles';
+  Tabs,
+  TextField,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from '../../src';
+import { withStyles, StyleRulesCallback } from '../../src/styles';
+import { withMobileDialog, DialogProps } from '../../src/Dialog';
+import { WithStyles } from '../../src/styles/withStyles';
 
 const log = console.log;
 const FakeIcon = () => <div>ICON</div>;
 
-const AppBarTest = () =>
+const AppBarTest = () => (
   <AppBar position="static">
     <Toolbar>
-      <IconButton color="contrast" aria-label="Menu">
+      <IconButton color="inherit" aria-label="Menu">
         <FakeIcon />
       </IconButton>
       <Typography type="title" color="inherit">
         Title
       </Typography>
-      <Button color="contrast">Login</Button>
+      <Button color="inherit">Login</Button>
     </Toolbar>
-  </AppBar>;
+  </AppBar>
+);
 
 const AvatarTest = () => <Avatar alt="Image Alt" src="example.jpg" />;
 
-const BadgeTest = () =>
+const AvaterClassName = () => <Avatar className="foo" />;
+
+const BadgeTest = () => (
   <Badge badgeContent={4} color="primary">
     <FakeIcon />
-  </Badge>;
+  </Badge>
+);
 
 const BottomNavigationTest = () => {
   const value = 123;
-  const handleChange = (e: React.SyntheticEvent<any>) => log(e);
 
   return (
-    <BottomNavigation value={value} onChange={handleChange} showLabels>
-      <BottomNavigationButton label="Recents" icon={<FakeIcon />} />
-      <BottomNavigationButton label="Favorites" />
-      <BottomNavigationButton label={<span>Nearby</span>} icon={<FakeIcon />} />
+    <BottomNavigation value={value} onChange={event => log(event)} showLabels>
+      <BottomNavigationAction label="Recents" icon={<FakeIcon />} />
+      <BottomNavigationAction label="Favorites" />
+      <BottomNavigationAction label={<span>Nearby</span>} icon={<FakeIcon />} />
     </BottomNavigation>
   );
 };
 
-const ButtonTest = () =>
+const ButtonTest = () => (
   <div>
     <Button>I am a button!</Button>
-    <Button color="contrast">Contrast</Button>
+    <Button color="inherit">Contrast</Button>
     <Button disabled>Disabled</Button>
     <Button href="#flat-buttons">Link</Button>
-    <Button dense>Dense</Button>
+    <Button size="small">Small</Button>
     <Button raised>Raised</Button>
     <Button fab color="primary" aria-label="add">
       <FakeIcon />
     </Button>
-  </div>;
+    <Button tabIndex={1} title="some button">
+      Raised
+    </Button>
+    <Button component="a">Simple Link</Button>
+    <Button component={props => <a {...props} />}>Complexe Link</Button>
+  </div>
+);
 
-const IconButtonTest = () =>
+const IconButtonTest = () => (
   <div>
     <IconButton aria-label="Delete">
       <FakeIcon />
@@ -107,18 +129,19 @@ const IconButtonTest = () =>
     <IconButton aria-label="Delete" disabled>
       <FakeIcon />
     </IconButton>
-    <IconButton color="accent" aria-label="Add an alarm">
+    <IconButton color="secondary" aria-label="Add an alarm">
       <FakeIcon />
     </IconButton>
-    <IconButton color="contrast" aria-label="Add to shopping cart">
+    <IconButton color="inherit" aria-label="Add to shopping cart">
       <FakeIcon />
     </IconButton>
     <IconButton color="primary" aria-label="Add to shopping cart">
       <FakeIcon />
     </IconButton>
-  </div>;
+  </div>
+);
 
-const CardTest = () =>
+const CardTest = () => (
   <Card>
     <CardContent>
       <Typography type="body1">Word of the Day</Typography>
@@ -132,25 +155,25 @@ const CardTest = () =>
       </Typography>
     </CardContent>
     <CardActions>
-      <Button dense>Learn More</Button>
+      <Button size="small">Learn More</Button>
     </CardActions>
-  </Card>;
+  </Card>
+);
 
-const CardMediaTest = () =>
+const CardMediaTest = () => (
   <Card>
     <CardHeader
       avatar={<Avatar aria-label="Recipe">R</Avatar>}
       title="Shrimp and Chorizo Paella"
       subheader="September 14, 2016"
     />
-    <CardMedia>
+    <CardMedia image="src.png" component="div">
       <img src={'image/src.png'} alt="Contemplative Reptile" />
     </CardMedia>
     <CardContent>
       <Typography component="p">
-        This impressive paella is a perfect party dish and a fun meal to cook
-        together with your guests. Add 1 cup of frozen peas along with the
-        mussels, if you like.
+        This impressive paella is a perfect party dish and a fun meal to cook together with your
+        guests. Add 1 cup of frozen peas along with the mussels, if you like.
       </Typography>
     </CardContent>
     <CardActions disableActionSpacing>
@@ -164,52 +187,46 @@ const CardMediaTest = () =>
         <FakeIcon />
       </IconButton>
     </CardActions>
-    <Collapse in={true} transitionDuration="auto" unmountOnExit>
+    <Collapse in={true} timeout="auto" unmountOnExit>
       <CardContent>
         <Typography paragraph type="body2">
           Method:
         </Typography>
         <Typography paragraph>
-          Heat 1/2 cup of the broth in a pot until simmering, add saffron and
-          set aside for 10 minutes.
+          Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
+          minutes.
         </Typography>
         <Typography paragraph>
-          Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet
-          over medium-high heat. Add chicken, shrimp and chorizo, and cook,
-          stirring occasionally until lightly browned, 6 to 8 minutes. Transfer
-          shrimp to a large plate and set aside, leaving chicken and chorizo in
-          the pan. Add pimentón, bay leaves, garlic, tomatoes, onion, salt and
-          pepper, and cook, stirring often until thickened and fragrant, about
-          10 minutes. Add saffron broth and remaining 4 1/2 cups chicken broth;
-          bring to a boil.
+          Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high heat.
+          Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly browned, 6
+          to 8 minutes. Transfer shrimp to a large plate and set aside, leaving chicken and chorizo
+          in the pan. Add pimentón, bay leaves, garlic, tomatoes, onion, salt and pepper, and cook,
+          stirring often until thickened and fragrant, about 10 minutes. Add saffron broth and
+          remaining 4 1/2 cups chicken broth; bring to a boil.
         </Typography>
         <Typography paragraph>
-          Add rice and stir very gently to distribute. Top with artichokes and
-          peppers, and cook without stirring, until most of the liquid is
-          absorbed, 15 to 18 minutes. Reduce heat to medium-low, add reserved
-          shrimp and mussels, tucking them down into the rice, and cook again
-          without stirring, until mussels have opened and rice is just tender, 5
-          to 7 minutes more. (Discard any mussels that don’t open.)
+          Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
+          without stirring, until most of the liquid is absorbed, 15 to 18 minutes. Reduce heat to
+          medium-low, add reserved shrimp and mussels, tucking them down into the rice, and cook
+          again without stirring, until mussels have opened and rice is just tender, 5 to 7 minutes
+          more. (Discard any mussels that don’t open.)
         </Typography>
         <Typography>
           Set aside off of the heat to let rest for 10 minutes, and then serve.
         </Typography>
       </CardContent>
     </Collapse>
-  </Card>;
+  </Card>
+);
 
-const ChipsTest = () =>
+const ChipsTest = () => (
   <div>
     <Chip label="Basic Chip" />
-    <Chip
-      avatar={<Avatar>MB</Avatar>}
-      label="Clickable Chip"
-      onClick={(e: React.SyntheticEvent<any>) => log(e)}
-    />
+    <Chip avatar={<Avatar>MB</Avatar>} label="Clickable Chip" onClick={event => log(event)} />
     <Chip
       avatar={<Avatar src={'image.bmp'} />}
       label="Deletable Chip"
-      onRequestDelete={(e: React.SyntheticEvent<any>) => log(e)}
+      onDelete={event => log(event)}
     />
     <Chip
       avatar={
@@ -218,24 +235,21 @@ const ChipsTest = () =>
         </Avatar>
       }
       label="Clickable Deletable Chip"
-      onClick={(e: React.SyntheticEvent<any>) => log(e)}
-      onRequestDelete={(e: React.SyntheticEvent<any>) => log(e)}
+      onClick={event => log(event)}
+      onDelete={event => log(event)}
     />
-  </div>;
+  </div>
+);
 
 const DialogTest = () => {
   const emails = ['username@gmail.com', 'user02@gmail.com'];
   return (
-    <Dialog onRequestClose={this.handleRequestClose}>
+    <Dialog onClose={event => log(event)} open>
       <DialogTitle>Set backup account</DialogTitle>
       <div>
         <List>
-          {emails.map(email =>
-            <ListItem
-              button
-              onClick={(e: React.SyntheticEvent<any>) => log(e)}
-              key={email}
-            >
+          {emails.map(email => (
+            <ListItem button onClick={event => log(event)} key={email}>
               <ListItemAvatar>
                 <Avatar>
                   <FakeIcon />
@@ -243,8 +257,8 @@ const DialogTest = () => {
               </ListItemAvatar>
               <ListItemText primary={email} />
             </ListItem>
-          )}
-          <ListItem button onClick={(e: React.SyntheticEvent<any>) => log(e)}>
+          ))}
+          <ListItem button onClick={event => log(event)}>
             <ListItemAvatar>
               <Avatar>
                 <FakeIcon />
@@ -258,11 +272,12 @@ const DialogTest = () => {
   );
 };
 
-const DividerTest = () =>
+const DividerTest = () => (
   <div>
     <Divider />
     <Divider light />
-  </div>;
+  </div>
+);
 
 const DrawerTest = () => {
   const open = {
@@ -274,33 +289,40 @@ const DrawerTest = () => {
   return (
     <div>
       <Drawer
+        type="persistent"
         open={open.left}
-        onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-        onClick={(e: React.SyntheticEvent<any>) => log(e)}
+        onClose={event => log(event)}
+        onClick={event => log(event)}
       >
         List
       </Drawer>
       <Drawer
+        type="temporary"
         anchor="top"
         open={open.top}
-        onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-        onClick={(e: React.SyntheticEvent<any>) => log(e)}
+        onClose={event => log(event)}
+        onClick={event => log(event)}
+        ModalProps={{
+          hideBackdrop: true,
+        }}
       >
         List
       </Drawer>
       <Drawer
         anchor="bottom"
+        type="temporary"
         open={open.bottom}
-        onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-        onClick={(e: React.SyntheticEvent<any>) => log(e)}
+        onClose={event => log(event)}
+        onClick={event => log(event)}
       >
         List
       </Drawer>
       <Drawer
+        type="persistent"
         anchor="right"
         open={open.right}
-        onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-        onClick={(e: React.SyntheticEvent<any>) => log(e)}
+        onClose={event => log(event)}
+        onClick={event => log(event)}
       >
         List
       </Drawer>
@@ -308,23 +330,56 @@ const DrawerTest = () => {
   );
 };
 
-const GridListTest = () =>
-  <GridList cellHeight={160} cols={3}>
-    <GridListTest cols={1}>
-      <img src="img.png" alt="alt text" />
-    </GridListTest>,
-  </GridList>;
+const ExpansionPanelTest = () => (
+  <div>
+    <ExpansionPanel onChange={(event, expanded) => log(event, expanded)} expanded disabled>
+      <ExpansionPanelSummary />
+      <ExpansionPanelDetails />
+    </ExpansionPanel>
+    <ExpansionPanel defaultExpanded>
+      <ExpansionPanelSummary expandIcon={<FakeIcon />}>
+        <Typography>...</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Typography>...</Typography>
+      </ExpansionPanelDetails>
+      <ExpansionPanelActions>
+        <Button size="small">Save</Button>
+      </ExpansionPanelActions>
+    </ExpansionPanel>
+  </div>
+);
 
-const ListTest = () =>
+const GridTest = () => (
+  <Grid component={Paper} container>
+    <Grid item xs={12}>
+      ...
+    </Grid>
+    <Grid item sm={12}>
+      ...
+    </Grid>
+    <Grid item xl={true}>
+      ...
+    </Grid>
+    <Grid item hidden={{ smDown: true }} style={{ color: 'red' }}>
+      ...
+    </Grid>
+  </Grid>
+);
+
+const GridListTest = () => (
+  <GridList cellHeight={160} cols={3} onClick={event => log(event)}>
+    <GridListTile cols={1} rows={4} onClick={event => log(event)}>
+      <img src="img.png" alt="alt text" />
+    </GridListTile>,
+  </GridList>
+);
+
+const ListTest = () => (
   <List>
-    {[0, 1, 2, 3].map(value =>
-      <ListItem
-        dense
-        button
-        key={value}
-        onClick={(e: React.SyntheticEvent<any>) => log(e)}
-      >
-        <Checkbox checked={true} tabIndex="-1" disableRipple />
+    {[0, 1, 2, 3].map(value => (
+      <ListItem dense button key={value} onClick={event => log(event)}>
+        <Checkbox checked={true} tabIndex={-1} disableRipple />
         <ListItemText primary={`Line item ${value + 1}`} />
         <ListItemSecondaryAction>
           <IconButton aria-label="Comments">
@@ -332,11 +387,12 @@ const ListTest = () =>
           </IconButton>
         </ListItemSecondaryAction>
       </ListItem>
-    )}
-  </List>;
+    ))}
+  </List>
+);
 
 const MenuTest = () => {
-  const anchorEl = document.getElementById('foo');
+  const anchorEl = document.getElementById('foo')!;
   const options = [
     'Show all notification content',
     'Hide sensitive notification content',
@@ -344,26 +400,17 @@ const MenuTest = () => {
   ];
 
   return (
-    <Menu
-      id="lock-menu"
-      anchorEl={anchorEl}
-      open={true}
-      onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-    >
-      {options.map((option, index) =>
-        <MenuItem
-          key={option}
-          selected={false}
-          onClick={(e: React.SyntheticEvent<any>) => log(e)}
-        >
+    <Menu id="lock-menu" anchorEl={anchorEl} open={true} onClose={event => log(event)}>
+      {options.map((option, index) => (
+        <MenuItem key={option} selected={false} onClick={event => log(event)}>
           {option}
         </MenuItem>
-      )}
+      ))}
     </Menu>
   );
 };
 
-const PaperTest = () =>
+const PaperTest = () => (
   <Paper elevation={4}>
     <Typography type="headline" component="h3">
       This is a sheet of paper.
@@ -371,21 +418,24 @@ const PaperTest = () =>
     <Typography type="body1" component="p">
       Paper can be used to build surface or other elements for your application.
     </Typography>
-  </Paper>;
+  </Paper>
+);
 
-const CircularProgessTest = () =>
+const CircularProgessTest = () => (
   <div>
     <CircularProgress />
     <CircularProgress size={50} />
-    <CircularProgress color="accent" />
-    <CircularProgress color="accent" size={50} />
-  </div>;
+    <CircularProgress color="secondary" />
+    <CircularProgress color="secondary" size={50} />
+  </div>
+);
 
-const LinearProgressTest = () =>
+const LinearProgressTest = () => (
   <div>
     <LinearProgress mode="determinate" value={12} />
-    <LinearProgress color="accent" mode="determinate" value={76} />
-  </div>;
+    <LinearProgress color="secondary" mode="determinate" value={76} />
+  </div>
+);
 
 const SelectionControlTest = () => {
   const state = {
@@ -394,60 +444,33 @@ const SelectionControlTest = () => {
     checkedF: true,
   };
 
-  const handleChange = name => (
-    event: React.SyntheticEvent<any>,
-    checked: boolean
-  ) => log({ [name]: checked });
+  const handleChange = (name: string) => (event: React.SyntheticEvent<any>, checked: boolean) =>
+    log({ [name]: checked });
 
   return (
     <FormGroup row>
       <FormControlLabel
         control={
-          <Checkbox
-            checked={state.checkedA}
-            onChange={handleChange('checkedA')}
-            value="checkedA"
-          />
+          <Checkbox checked={state.checkedA} onChange={handleChange('checkedA')} value="checkedA" />
         }
         label="Option A"
       />
       <FormControlLabel
         control={
-          <Checkbox
-            checked={state.checkedB}
-            onChange={handleChange('checkedB')}
-            value="checkedB"
-          />
+          <Checkbox checked={state.checkedB} onChange={handleChange('checkedB')} value="checkedB" />
         }
         label="Option B"
       />
-      <FormControlLabel
-        control={<Checkbox value="checkedC" />}
-        label="Option C"
-      />
-      <FormControlLabel
-        disabled
-        control={<Checkbox value="checkedD" />}
-        label="Disabled"
-      />
-      <FormControlLabel
-        disabled
-        control={<Checkbox checked value="checkedE" />}
-        label="Disabled"
-      />
+      <FormControlLabel control={<Checkbox value="checkedC" />} label="Option C" />
+      <FormControlLabel disabled control={<Checkbox value="checkedD" />} label="Disabled" />
+      <FormControlLabel disabled control={<Checkbox checked value="checkedE" />} label="Disabled" />
       <FormControlLabel
         disabled
         control={<Checkbox checked value="checkedE" indeterminate />}
         label="Indeterminate"
       />
       <FormControlLabel
-        control={
-          <Checkbox
-            checked={true}
-            onChange={handleChange('checkedF')}
-            value="checkedF"
-          />
-        }
+        control={<Checkbox checked={true} onChange={handleChange('checkedF')} value="checkedF" />}
         label="Custom color"
       />
     </FormGroup>
@@ -460,39 +483,23 @@ const SwitchTest = () => {
     checkedB: false,
     checkedE: true,
   };
-  const handleChange = name => (
-    event: React.SyntheticEvent<any>,
-    checked: boolean
-  ) => log({ [name]: checked });
+  const handleChange = (name: string) => (event: React.SyntheticEvent<any>, checked: boolean) =>
+    log({ [name]: checked });
 
   return (
     <div>
-      <Switch
-        checked={state.checkedA}
-        onChange={handleChange('checkedA')}
-        aria-label="checkedA"
-      />
-      <Switch
-        checked={state.checkedB}
-        onChange={handleChange('checkedB')}
-        aria-label="checkedB"
-      />
+      <Switch checked={state.checkedA} onChange={handleChange('checkedA')} aria-label="checkedA" />
+      <Switch checked={state.checkedB} onChange={handleChange('checkedB')} aria-label="checkedB" />
       <Switch checked={false} aria-label="checkedC" disabled />
       <Switch checked aria-label="checkedD" disabled />
-      <Switch
-        checked={state.checkedE}
-        onChange={handleChange('checkedE')}
-        aria-label="checkedD"
-      />
+      <Switch checked={state.checkedE} onChange={handleChange('checkedE')} aria-label="checkedD" />
     </div>
   );
 };
 
-const SnackbarTest = () =>
+const SnackbarTest = () => (
   <div>
-    <Button onClick={(e: React.SyntheticEvent<any>) => log(e)}>
-      Open simple snackbar
-    </Button>
+    <Button onClick={event => log(event)}>Open simple snackbar</Button>
     <Snackbar
       anchorOrigin={{
         vertical: 'bottom',
@@ -500,35 +507,29 @@ const SnackbarTest = () =>
       }}
       open={true}
       autoHideDuration={6e3}
-      onRequestClose={(e: React.SyntheticEvent<any>) => log(e)}
-      SnackbarContentProps={{
-        'aria-describedby': 'message-id',
-      }}
+      onClose={event => log(event)}
+      SnackbarContentProps={
+        {
+          // 'aria-describedby': 'message-id',
+          // ^ will work once https://github.com/DefinitelyTyped/DefinitelyTyped/pull/22582 is merged.
+        }
+      }
       message={<span id="message-id">Note archived</span>}
       action={[
-        <Button
-          key="undo"
-          color="accent"
-          dense
-          onClick={(e: React.SyntheticEvent<any>) => log(e)}
-        >
+        <Button key="undo" color="secondary" size="small" onClick={event => log(event)}>
           UNDO
         </Button>,
-        <IconButton
-          key="close"
-          aria-label="Close"
-          color="inherit"
-          onClick={(e: React.SyntheticEvent<any>) => log(e)}
-        >
+        <IconButton key="close" aria-label="Close" color="inherit" onClick={event => log(event)}>
           <FakeIcon />
         </IconButton>,
       ]}
     />
-  </div>;
+  </div>
+);
 
 const SnackbarContentTest = () => {
   const action = (
-    <Button color="accent" dense>
+    <Button color="secondary" size="small">
       lorem ipsum dolorem
     </Button>
   );
@@ -541,10 +542,7 @@ const SnackbarContentTest = () => {
           I love cheesecake. I love chocolate.'
         }
       />
-      <SnackbarContent
-        message="I love candy. I love cookies. I love cupcakes."
-        action={action}
-      />
+      <SnackbarContent message="I love candy. I love cookies. I love cupcakes." action={action} />
       <SnackbarContent
         message={
           'I love candy. I love cookies. I love cupcakes. \
@@ -578,6 +576,11 @@ const StepperTest = () =>
 
     render() {
       const classes = this.props.classes;
+      const defaultProps = {
+        steps: 2,
+        nextButton: <Button>Next</Button>,
+        backButton: <Button>Back</Button>,
+      };
       return (
         <MobileStepper
           type="dots"
@@ -585,26 +588,27 @@ const StepperTest = () =>
           position="static"
           activeStep={this.state.activeStep}
           className={classes.root}
-          onBack={this.handleBack}
-          onNext={this.handleNext}
-          disableBack={this.state.activeStep === 0}
-          disableNext={this.state.activeStep === 5}
+          {...defaultProps}
         />
       );
     }
   };
 
 const TableTest = () => {
-  const styleSheet = createStyleSheet(theme => ({
-    paper: {
-      width: '100%',
-      marginTop: theme.spacing.unit * 3,
-      overflowX: 'auto',
-    },
-  }));
+  const styles: StyleRulesCallback<'paper'> = theme => {
+    const backgroundColor: string = theme.palette.secondary.light;
+    return {
+      paper: {
+        width: '100%',
+        marginTop: theme.spacing.unit * 3,
+        backgroundColor,
+        overflowX: 'auto',
+      },
+    };
+  };
 
   let id = 0;
-  function createData(name, calories, fat, carbs, protein) {
+  function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
     id += 1;
     return { id, name, calories, fat, carbs, protein };
   }
@@ -617,7 +621,7 @@ const TableTest = () => {
     createData('Gingerbread', 356, 16.0, 49, 3.9),
   ];
 
-  function BasicTable(props) {
+  function BasicTable(props: WithStyles<'paper'>) {
     const classes = props.classes;
 
     return (
@@ -636,21 +640,11 @@ const TableTest = () => {
             {data.map(n => {
               return (
                 <TableRow key={n.id}>
-                  <TableCell>
-                    {n.name}
-                  </TableCell>
-                  <TableCell numeric>
-                    {n.calories}
-                  </TableCell>
-                  <TableCell numeric>
-                    {n.fat}
-                  </TableCell>
-                  <TableCell numeric>
-                    {n.carbs}
-                  </TableCell>
-                  <TableCell numeric>
-                    {n.protein}
-                  </TableCell>
+                  <TableCell>{n.name}</TableCell>
+                  <TableCell numeric>{n.calories}</TableCell>
+                  <TableCell numeric>{n.fat}</TableCell>
+                  <TableCell numeric>{n.carbs}</TableCell>
+                  <TableCell numeric>{n.protein}</TableCell>
                 </TableRow>
               );
             })}
@@ -660,30 +654,32 @@ const TableTest = () => {
     );
   }
 
-  return withStyles(styleSheet)(BasicTable);
+  return withStyles(styles)<{}>(BasicTable);
 };
 
 const TabsTest = () => {
-  const TabContainer = props =>
-    <div style={{ padding: 20 }}>
-      {props.children}
-    </div>;
+  const TabContainer: React.SFC = props => <div style={{ padding: 20 }}>{props.children}</div>;
 
-  const styleSheet = createStyleSheet(theme => ({
+  type ClassKey = 'root' | 'button';
+
+  const styles: StyleRulesCallback<ClassKey> = theme => ({
     root: {
       flexGrow: 1,
       marginTop: theme.spacing.unit * 3,
       backgroundColor: theme.palette.background.paper,
     },
-  }));
+    button: {
+      display: 'flex',
+    },
+  });
 
-  class BasicTabs extends React.Component<{ classes: { root: string } }> {
+  class BasicTabs extends React.Component<WithStyles<ClassKey>> {
     state = {
-      index: 0,
+      value: 0,
     };
 
-    handleChange = (event, index) => {
-      this.setState({ index });
+    handleChange = (event: React.SyntheticEvent<any>, value: number) => {
+      this.setState({ value });
     };
 
     render() {
@@ -692,33 +688,24 @@ const TabsTest = () => {
       return (
         <div className={classes.root}>
           <AppBar position="static">
-            <Tabs index={this.state.index} onChange={this.handleChange}>
+            <Tabs value={this.state.value} onChange={this.handleChange}>
               <Tab label="Item One" />
               <Tab label="Item Two" />
               <Tab label="Item Three" />
             </Tabs>
           </AppBar>
-          {this.state.index === 0 &&
-            <TabContainer>
-              {'Item One'}
-            </TabContainer>}
-          {this.state.index === 1 &&
-            <TabContainer>
-              {'Item Two'}
-            </TabContainer>}
-          {this.state.index === 2 &&
-            <TabContainer>
-              {'Item Three'}
-            </TabContainer>}
+          {this.state.value === 0 && <TabContainer>{'Item One'}</TabContainer>}
+          {this.state.value === 1 && <TabContainer>{'Item Two'}</TabContainer>}
+          {this.state.value === 2 && <TabContainer>{'Item Three'}</TabContainer>}
         </div>
       );
     }
   }
 
-  return withStyles(styleSheet)(BasicTabs);
+  return withStyles(styles)(BasicTabs);
 };
 
-const TextFieldTest = () =>
+const TextFieldTest = () => (
   <div>
     <TextField id="name" label="Name" value={'Alice'} />
     <TextField id="name" label={<strong>Name</strong>} value={'Alice'} />
@@ -726,7 +713,56 @@ const TextFieldTest = () =>
       id="name"
       label="Name"
       value={'Alice'}
-      onChange={(event: React.SyntheticEvent<any>) =>
-        log({ name: event.currentTarget.value })}
+      onChange={event => log({ name: event.currentTarget.value })}
     />
-  </div>;
+    <TextField id="name" label="Name" value={'Alice'} InputProps={{ classes: { root: 'foo' } }} />
+    <TextField type="number" InputProps={{ inputProps: { min: '0', max: '10', step: '1' } }} />
+  </div>
+);
+
+const SelectTest = () => {
+  <Select input={<Input />} value={10} onChange={e => log(e.currentTarget.value)}>
+    <MenuItem value="">
+      <em>None</em>
+    </MenuItem>
+    <MenuItem value={10}>Ten</MenuItem>
+    <MenuItem value={20}>Twenty</MenuItem>
+    <MenuItem value={30}>Thirty</MenuItem>
+  </Select>;
+};
+
+const ResponsiveComponentTest = () => {
+  const ResponsiveComponent = withMobileDialog({
+    breakpoint: 'sm',
+  })(({ children, width, fullScreen }) => (
+    <div style={{ width, position: fullScreen ? 'fixed' : 'static' }}>{children}</div>
+  ));
+  <ResponsiveComponent />;
+
+  const ResponsiveDialogComponent = withMobileDialog<DialogProps>()(Dialog);
+};
+
+const TooltipComponentTest = () => (
+  <div>
+    <Tooltip id="tooltip-top-start" title="Add" placement="top-start">
+      <Button>top-start</Button>
+    </Tooltip>
+    <Tooltip id="tooltip-top-start" title={<strong>Add</strong>} placement="top-start">
+      <Button>top-start</Button>
+    </Tooltip>
+  </div>
+);
+
+const ClickAwayListenerComponentTest = () => (
+  <ClickAwayListener onClickAway={() => {}}>
+    <div />
+  </ClickAwayListener>
+);
+
+const FadeTest = () => (
+  <Fade in={false}>
+    <div />
+  </Fade>
+);
+
+const BackdropTest = () => <Backdrop open onTouchMove={() => {}} />;

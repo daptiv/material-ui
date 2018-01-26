@@ -1,12 +1,9 @@
-// @flow
-
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { emphasize } from '../styles/colorManipulator';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     position: 'relative',
     display: 'flex',
@@ -16,89 +13,33 @@ export const styles = (theme: Object) => ({
     width: 40,
     height: 40,
     fontFamily: theme.typography.fontFamily,
-    fontSize: 20,
+    fontSize: theme.typography.pxToRem(20),
     borderRadius: '50%',
     overflow: 'hidden',
     userSelect: 'none',
   },
   colorDefault: {
     color: theme.palette.background.default,
-    backgroundColor: emphasize(theme.palette.background.default, 0.26),
+    backgroundColor:
+      theme.palette.type === 'light' ? theme.palette.grey[400] : theme.palette.grey[600],
   },
   img: {
-    maxWidth: '100%',
     width: '100%',
-    height: 'auto',
+    height: '100%',
+    textAlign: 'center',
+    // Handle non-square image. The property isn't supported by IE11.
+    objectFit: 'cover',
   },
 });
 
-type DefaultProps = {
-  classes: Object,
-  component: string,
-};
-
-export type Props = {
-  /**
-   * Used in combination with `src` or `srcSet` to
-   * provide an alt attribute for the rendered `img` element.
-   */
-  alt?: string,
-  /**
-   * Used to render icon or text elements inside the Avatar.
-   * `src` and `alt` props will not be used and no `img` will
-   * be rendered by default.
-   *
-   * This can be an element, or just a string.
-   */
-  children?: Element<*>,
-  /**
-   * @ignore
-   * The className of the child element.
-   * Used by Chip and ListItemIcon to style the Avatar icon.
-   */
-  childrenClassName?: string,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component?: string | Function,
-  /**
-   * Properties applied to the `img` element when the component
-   * is used to display an image.
-   */
-  imgProps?: Object,
-  /**
-   * The `sizes` attribute for the `img` element.
-   */
-  sizes?: string,
-  /**
-   * The `src` attribute for the `img` element.
-   */
-  src?: string,
-  /**
-   * The `srcSet` attribute for the `img` element.
-   */
-  srcSet?: string,
-};
-
-type AllProps = DefaultProps & Props;
-
-function Avatar(props: AllProps) {
+function Avatar(props) {
   const {
     alt,
-    classes,
-    className: classNameProp,
     children: childrenProp,
     childrenClassName: childrenClassNameProp,
-    component: ComponentProp,
+    classes,
+    className: classNameProp,
+    component: Component,
     imgProps,
     sizes,
     src,
@@ -116,7 +57,11 @@ function Avatar(props: AllProps) {
   let children = null;
 
   if (childrenProp) {
-    if (childrenClassNameProp && React.isValidElement(childrenProp)) {
+    if (
+      childrenClassNameProp &&
+      typeof childrenProp !== 'string' &&
+      React.isValidElement(childrenProp)
+    ) {
       const childrenClassName = classNames(childrenClassNameProp, childrenProp.props.className);
       children = React.cloneElement(childrenProp, { className: childrenClassName });
     } else {
@@ -136,11 +81,63 @@ function Avatar(props: AllProps) {
   }
 
   return (
-    <ComponentProp className={className} {...other}>
+    <Component className={className} {...other}>
       {children}
-    </ComponentProp>
+    </Component>
   );
 }
+
+Avatar.propTypes = {
+  /**
+   * Used in combination with `src` or `srcSet` to
+   * provide an alt attribute for the rendered `img` element.
+   */
+  alt: PropTypes.string,
+  /**
+   * Used to render icon or text elements inside the Avatar.
+   * `src` and `alt` props will not be used and no `img` will
+   * be rendered by default.
+   *
+   * This can be an element, or just a string.
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   * The className of the child element.
+   * Used by Chip and ListItemIcon to style the Avatar icon.
+   */
+  childrenClassName: PropTypes.string,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  /**
+   * Properties applied to the `img` element when the component
+   * is used to display an image.
+   */
+  imgProps: PropTypes.object,
+  /**
+   * The `sizes` attribute for the `img` element.
+   */
+  sizes: PropTypes.string,
+  /**
+   * The `src` attribute for the `img` element.
+   */
+  src: PropTypes.string,
+  /**
+   * The `srcSet` attribute for the `img` element.
+   */
+  srcSet: PropTypes.string,
+};
 
 Avatar.defaultProps = {
   component: 'div',

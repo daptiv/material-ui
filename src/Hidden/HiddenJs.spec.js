@@ -1,20 +1,13 @@
-// @flow weak
-/* eslint-disable no-loop-func */
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow } from '../test-utils';
 import HiddenJs from './HiddenJs';
-import type { Breakpoint } from '../styles/breakpoints';
-import Typography from '../Typography';
 
 describe('<HiddenJs />', () => {
   let shallow;
 
   before(() => {
-    shallow = createShallow({
-      untilSelector: 'EventListener',
-    });
+    shallow = createShallow({ untilSelector: 'HiddenJs' });
   });
 
   function resolvePropName(upDownOnly, breakpoint) {
@@ -25,75 +18,46 @@ describe('<HiddenJs />', () => {
     return `${breakpoint}${upDownOnly}`;
   }
 
-  function isHidden(
-    hiddenBreakpoints: Array<*>,
-    upDownOnly: 'Up' | 'Down' | 'only',
-    width: Breakpoint,
-  ) {
+  function isHidden(hiddenBreakpoints, upDownOnly, width) {
     hiddenBreakpoints.forEach(breakpoint => {
       const prop = resolvePropName(upDownOnly, breakpoint);
       const descriptions = {
         Up: `${prop} is hidden for width: ${width} >= ${breakpoint}`,
-        Down: `${prop} is hidden for width: ${width} <= ${breakpoint}`,
+        Down: `${prop} is hidden for width: ${width} < ${breakpoint}`,
         only: `${prop} is hidden for width: ${width} === ${breakpoint}`,
       };
+      const props = { [prop]: upDownOnly === 'only' ? breakpoint : true };
 
       it(descriptions[upDownOnly], () => {
-        const props = { width, [prop]: breakpoint };
-
-        // children
-        let wrapper = shallow(
-          <HiddenJs component="div" {...props}>
-            foo
+        const wrapper = shallow(
+          <HiddenJs width={width} {...props}>
+            <div>foo</div>
           </HiddenJs>,
         );
-        assert.isNull(wrapper.type(), 'should render null');
-
-        // element
-        wrapper = shallow(
-          <HiddenJs component={<Typography>foo</Typography>} {...props}>
-            foo
-          </HiddenJs>,
-        );
-        assert.isNull(wrapper.type(), 'should render null');
+        assert.strictEqual(wrapper.type(), null, 'should render null');
       });
     });
   }
 
-  function isVisible(
-    visibleBreakpoints: Array<*>,
-    upDownOnly: 'Up' | 'Down' | 'only',
-    width: Breakpoint,
-  ) {
+  function isVisible(visibleBreakpoints, upDownOnly, width) {
     visibleBreakpoints.forEach(breakpoint => {
       const prop = resolvePropName(upDownOnly, breakpoint);
       const descriptions = {
         Up: `${prop} is visible for width: ${width} < ${breakpoint}`,
-        Down: `${prop} is visible for width: ${width} > ${breakpoint}`,
+        Down: `${prop} is visible for width: ${width} >= ${breakpoint}`,
         only: `${prop} is visible for width: ${width} !== ${breakpoint}`,
       };
+      const props = { [prop]: upDownOnly === 'only' ? breakpoint : true };
 
       it(descriptions[upDownOnly], () => {
-        const props = { width, [prop]: breakpoint };
-
-        // children
-        let wrapper = shallow(
-          <HiddenJs {...props}>
+        const wrapper = shallow(
+          <HiddenJs width={width} {...props}>
             <div>foo</div>
           </HiddenJs>,
         );
         assert.isNotNull(wrapper.type(), 'should render');
         assert.strictEqual(wrapper.name(), 'div');
         assert.strictEqual(wrapper.first().text(), 'foo', 'should render children');
-
-        // element
-        wrapper = shallow(
-          <HiddenJs {...props}>
-            <Typography>foo</Typography>
-          </HiddenJs>,
-        );
-        assert.isNotNull(wrapper.type(), 'should render');
-        assert.strictEqual(wrapper.name(), 'withStyles(Typography)');
       });
     });
   }

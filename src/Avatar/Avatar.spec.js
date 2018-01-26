@@ -1,9 +1,7 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
+import CancelIcon from '../internal/svg-icons/Cancel';
 import { createShallow, getClasses } from '../test-utils';
-import CancelIcon from '../svg-icons/cancel';
 import Avatar from './Avatar';
 
 describe('<Avatar />', () => {
@@ -52,14 +50,7 @@ describe('<Avatar />', () => {
 
     it('should be able to add more properties to the image', () => {
       const onError = () => {};
-      const wrapper = shallow(
-        <Avatar
-          src="something.jpg"
-          imgProps={{
-            onError,
-          }}
-        />,
-      );
+      const wrapper = shallow(<Avatar src="something.jpg" imgProps={{ onError }} />);
       assert.strictEqual(wrapper.childAt(0).props().onError, onError);
     });
   });

@@ -1,12 +1,9 @@
-// @flow
-
-import React, { Component } from 'react';
-import type { Element } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     width: '100%',
@@ -16,41 +13,7 @@ export const styles = (theme: Object) => ({
   },
 });
 
-type DefaultProps = {
-  classes: Object,
-  component: string,
-};
-
-export type Props = {
-  /**
-   * The content of the table, normally `TableHeader` and `TableBody`.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component?: string | Function,
-};
-
-type AllProps = DefaultProps & Props;
-
-class Table extends Component<DefaultProps, AllProps, void> {
-  props: AllProps;
-
-  static defaultProps: DefaultProps = {
-    classes: {},
-    component: 'table',
-  };
-
+class Table extends React.Component {
   getChildContext() {
     // eslint-disable-line class-methods-use-this
     return {
@@ -59,22 +22,35 @@ class Table extends Component<DefaultProps, AllProps, void> {
   }
 
   render() {
-    const {
-      classes,
-      className: classNameProp,
-      children,
-      component: ComponentProp,
-      ...other
-    } = this.props;
-    const className = classNames(classes.root, classNameProp);
+    const { classes, className: classNameProp, component: Component, ...other } = this.props;
 
-    return (
-      <ComponentProp className={className} {...other}>
-        {children}
-      </ComponentProp>
-    );
+    return <Component className={classNames(classes.root, classNameProp)} {...other} />;
   }
 }
+
+Table.propTypes = {
+  /**
+   * The content of the table, normally `TableHeader` and `TableBody`.
+   */
+  children: PropTypes.node.isRequired,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+};
+
+Table.defaultProps = {
+  component: 'table',
+};
 
 Table.childContextTypes = {
   table: PropTypes.object,

@@ -1,15 +1,16 @@
-// @flow
+// @inheritedComponent Paper
 
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Paper from '../Paper';
 import Typography from '../Typography';
+import { emphasize } from '../styles/colorManipulator';
 
-export const styles = (theme: Object) => {
-  const type = theme.palette.type === 'light' ? 'dark' : 'light';
-  const backgroundColor = theme.palette.shades[type].background.default;
+export const styles = theme => {
+  const emphasis = theme.palette.type === 'light' ? 0.8 : 0.98;
+  const backgroundColor = emphasize(theme.palette.background.default, emphasis);
 
   return {
     root: {
@@ -25,7 +26,7 @@ export const styles = (theme: Object) => {
         maxWidth: 568,
         borderRadius: 2,
       },
-      [theme.breakpoints.down('md')]: {
+      [theme.breakpoints.down('sm')]: {
         flexGrow: 1,
       },
     },
@@ -42,32 +43,7 @@ export const styles = (theme: Object) => {
   };
 };
 
-type DefaultProps = {
-  classes: Object,
-};
-
-export type Props = {
-  /**
-   * The action to display.
-   */
-  action?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The message to display.
-   */
-  message: Element<*>,
-};
-
-type AllProps = DefaultProps & Props;
-
-function SnackbarContent(props: AllProps) {
+function SnackbarContent(props) {
   const { action, classes, className, message, ...other } = props;
 
   return (
@@ -82,16 +58,29 @@ function SnackbarContent(props: AllProps) {
       className={classNames(classes.root, className)}
       {...other}
     >
-      <div className={classes.message}>
-        {message}
-      </div>
-      {action
-        ? <div className={classes.action}>
-            {action}
-          </div>
-        : null}
+      <div className={classes.message}>{message}</div>
+      {action ? <div className={classes.action}>{action}</div> : null}
     </Paper>
   );
 }
+
+SnackbarContent.propTypes = {
+  /**
+   * The action to display.
+   */
+  action: PropTypes.node,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The message to display.
+   */
+  message: PropTypes.node,
+};
 
 export default withStyles(styles, { name: 'MuiSnackbarContent' })(SnackbarContent);

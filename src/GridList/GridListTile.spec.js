@@ -1,20 +1,17 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { spy, useFakeTimers } from 'sinon';
-import { createShallow, createMount, getClasses } from '../test-utils';
+import { createShallow, createMount, getClasses, unwrap } from '../test-utils';
 import GridListTile from './GridListTile';
 
 describe('<GridListTile />', () => {
   let shallow;
   let mount;
   let classes;
+  const GridListTileNaked = unwrap(GridListTile);
 
   before(() => {
-    shallow = createShallow({
-      dive: true,
-    });
+    shallow = createShallow({ dive: true });
     mount = createMount();
     classes = getClasses(<GridListTile />);
   });
@@ -31,32 +28,20 @@ describe('<GridListTile />', () => {
 
   it('should render a li', () => {
     const children = <img src={tileData.img} alt="foo" />;
-    const wrapper = shallow(
-      <GridListTile>
-        {children}
-      </GridListTile>,
-    );
+    const wrapper = shallow(<GridListTile>{children}</GridListTile>);
     assert.strictEqual(wrapper.name(), 'li');
   });
 
   it('should render a ul', () => {
     const children = <img src={tileData.img} alt="foo" />;
-    const wrapper = shallow(
-      <GridListTile component="li">
-        {children}
-      </GridListTile>,
-    );
+    const wrapper = shallow(<GridListTile component="li">{children}</GridListTile>);
     assert.strictEqual(wrapper.name(), 'li');
   });
 
   describe('prop: children', () => {
     it('should render children by default', () => {
       const children = <img src={tileData.img} alt="foo" />;
-      const wrapper = shallow(
-        <GridListTile>
-          {children}
-        </GridListTile>,
-      );
+      const wrapper = shallow(<GridListTile>{children}</GridListTile>);
 
       assert.strictEqual(
         wrapper.containsMatchingElement(children),
@@ -67,11 +52,7 @@ describe('<GridListTile />', () => {
 
     it('should not change non image child', () => {
       const children = <div />;
-      const wrapper = shallow(
-        <GridListTile>
-          {children}
-        </GridListTile>,
-      );
+      const wrapper = shallow(<GridListTile>{children}</GridListTile>);
       assert.strictEqual(wrapper.containsMatchingElement(children), true);
     });
   });
@@ -79,11 +60,7 @@ describe('<GridListTile />', () => {
   describe('prop: className', () => {
     it('should renders className', () => {
       const children = <img src={tileData.img} alt="foo" />;
-      const wrapper = shallow(
-        <GridListTile className="foo">
-          {children}
-        </GridListTile>,
-      );
+      const wrapper = shallow(<GridListTile className="foo">{children}</GridListTile>);
 
       assert.strictEqual(wrapper.hasClass('foo'), true, 'should contain the className');
     });
@@ -95,14 +72,11 @@ describe('<GridListTile />', () => {
 
     beforeEach(() => {
       wrapper = mount(
-        <GridListTile.Naked
-          classes={{
-            imgFullWidth: 'imgFullWidth',
-            imgFullHeight: 'imgFullHeight',
-          }}
+        <GridListTileNaked
+          classes={{ imgFullWidth: 'imgFullWidth foo', imgFullHeight: 'imgFullHeight' }}
         >
           <img alt="test" />
-        </GridListTile.Naked>,
+        </GridListTileNaked>,
       );
       instance = wrapper.instance();
     });
@@ -113,14 +87,10 @@ describe('<GridListTile />', () => {
       instance.ensureImageCover();
       instance.fit();
 
-      instance.imgElement = {
-        complete: false,
-      };
+      instance.imgElement = { complete: false };
       instance.fit();
       assert.strictEqual(instance.imgElement instanceof HTMLElement, false);
-      wrapper.setProps({
-        children: <img alt="test2" />,
-      });
+      wrapper.setProps({ children: <img alt="test2" /> });
       assert.strictEqual(instance.imgElement instanceof HTMLElement, true);
     });
 
@@ -129,14 +99,8 @@ describe('<GridListTile />', () => {
         complete: true,
         width: 16,
         height: 9,
-        parentNode: {
-          offsetWidth: 4,
-          offsetHeight: 3,
-        },
-        classList: {
-          remove: spy(),
-          add: spy(),
-        },
+        parentNode: { offsetWidth: 4, offsetHeight: 3 },
+        classList: { remove: spy(), add: spy() },
         removeEventListener: () => {},
       };
 
@@ -152,14 +116,8 @@ describe('<GridListTile />', () => {
         complete: true,
         width: 4,
         height: 3,
-        parentNode: {
-          offsetWidth: 16,
-          offsetHeight: 9,
-        },
-        classList: {
-          remove: spy(),
-          add: spy(),
-        },
+        parentNode: { offsetWidth: 16, offsetHeight: 9 },
+        classList: { remove: spy(), add: spy() },
         removeEventListener: () => {},
       };
 
@@ -189,17 +147,14 @@ describe('<GridListTile />', () => {
         complete: true,
         width: 4,
         height: 3,
-        parentNode: {
-          offsetWidth: 16,
-          offsetHeight: 9,
-        },
-        classList: {
-          remove: spy(),
-          add: spy(),
-        },
+        parentNode: { offsetWidth: 16, offsetHeight: 9 },
+        classList: { remove: spy(), add: spy() },
         removeEventListener: () => {},
       };
-      wrapper.find('EventListener').at(0).simulate('resize');
+      wrapper
+        .find('EventListener')
+        .at(0)
+        .simulate('resize');
       assert.strictEqual(instance.imgElement.classList.remove.callCount, 0);
       clock.tick(166);
       assert.strictEqual(instance.imgElement.classList.remove.callCount, 1);

@@ -1,24 +1,35 @@
-// @flow
-
 import React from 'react';
 import { spy, stub } from 'sinon';
 import { assert } from 'chai';
 import ReactDOM from 'react-dom';
-import { createShallow, createMount, getClasses } from '../test-utils';
+import { createShallow, createMount, getClasses, unwrap } from '../test-utils';
+import Popover from '../Popover';
+import mockPortal from '../../test/utils/mockPortal';
 import Menu from './Menu';
 
 describe('<Menu />', () => {
   let shallow;
   let classes;
+  let mount;
+  const defaultProps = {
+    open: false,
+  };
 
   before(() => {
     shallow = createShallow({ dive: true });
-    classes = getClasses(<Menu />);
+    classes = getClasses(<Menu {...defaultProps} />);
+    mount = createMount();
+    mockPortal.init();
+  });
+
+  after(() => {
+    mount.cleanUp();
+    mockPortal.reset();
   });
 
   it('should render a Popover', () => {
-    const wrapper = shallow(<Menu />);
-    assert.strictEqual(wrapper.name(), 'withStyles(Popover)');
+    const wrapper = shallow(<Menu {...defaultProps} />);
+    assert.strictEqual(wrapper.type(), Popover);
   });
 
   it('should fire Popover transition event callbacks', () => {
@@ -29,7 +40,7 @@ describe('<Menu />', () => {
       return result;
     }, {});
 
-    const wrapper = shallow(<Menu {...handlers} />);
+    const wrapper = shallow(<Menu {...defaultProps} {...handlers} />);
 
     events.forEach(n => {
       const event = n.charAt(2).toLowerCase() + n.slice(3);
@@ -38,13 +49,20 @@ describe('<Menu />', () => {
     });
   });
 
-  it('should pass `classes.root` to the Popover for the className', () => {
-    const wrapper = shallow(<Menu />);
-    assert.strictEqual(wrapper.hasClass(classes.root), true, 'should be classes.root');
+  it('should pass `classes.paper` to the Popover', () => {
+    const wrapper = shallow(<Menu {...defaultProps} />);
+    assert.strictEqual(wrapper.props().PaperProps.classes.root, classes.paper);
+  });
+
+  describe('prop: PopoverClasses', () => {
+    it('should be able to change the Popover style', () => {
+      const wrapper = shallow(<Menu {...defaultProps} PopoverClasses={{ foo: 'bar' }} />);
+      assert.strictEqual(wrapper.props().classes.foo, 'bar');
+    });
   });
 
   it('should pass the instance function `getContentAnchorEl` to Popover', () => {
-    const wrapper = shallow(<Menu />);
+    const wrapper = shallow(<Menu {...defaultProps} />);
     assert.strictEqual(
       wrapper.props().getContentAnchorEl,
       wrapper.instance().getContentAnchorEl,
@@ -52,20 +70,20 @@ describe('<Menu />', () => {
     );
   });
 
-  it('should pass onRequestClose prop to Popover', () => {
+  it('should pass onClose prop to Popover', () => {
     const fn = () => {};
-    const wrapper = shallow(<Menu onRequestClose={fn} />);
-    assert.strictEqual(wrapper.props().onRequestClose, fn, 'should be the same function');
+    const wrapper = shallow(<Menu {...defaultProps} onClose={fn} />);
+    assert.strictEqual(wrapper.props().onClose, fn, 'should be the same function');
   });
 
   it('should pass anchorEl prop to Popover', () => {
-    const el = {};
-    const wrapper = shallow(<Menu anchorEl={el} />);
+    const el = document.createElement('div');
+    const wrapper = shallow(<Menu {...defaultProps} anchorEl={el} />);
     assert.strictEqual(wrapper.props().anchorEl, el, 'should be the same object');
   });
 
   it('should pass through the `open` prop to Popover', () => {
-    const wrapper = shallow(<Menu />);
+    const wrapper = shallow(<Menu {...defaultProps} />);
     assert.strictEqual(wrapper.props().open, false, 'should have an open prop of false');
     wrapper.setProps({ open: true });
     assert.strictEqual(wrapper.props().open, true, 'should have an open prop of true');
@@ -76,7 +94,7 @@ describe('<Menu />', () => {
     let list;
 
     before(() => {
-      wrapper = shallow(<Menu className="test-class" data-test="hi" />);
+      wrapper = shallow(<Menu {...defaultProps} className="test-class" data-test="hi" />);
       list = wrapper.childAt(0);
     });
 
@@ -97,8 +115,23 @@ describe('<Menu />', () => {
     });
   });
 
+  it('should open during the initial mount', () => {
+    const wrapper = mount(
+      <Menu open classes={classes}>
+        <div />
+      </Menu>,
+    );
+    const popover = wrapper.find('Popover');
+    assert.strictEqual(popover.props().open, true);
+    const menuEl = document.querySelector('[data-mui-test="Menu"]');
+    assert.strictEqual(
+      document.activeElement,
+      menuEl && menuEl.firstChild,
+      'should be the first menu item',
+    );
+  });
+
   describe('mount', () => {
-    let mount;
     let wrapper;
     let instance;
 
@@ -114,8 +147,8 @@ describe('<Menu />', () => {
     let findDOMNodeStub;
 
     before(() => {
-      mount = createMount();
-      wrapper = mount(<Menu.Naked classes={classes} />);
+      const MenuNaked = unwrap(Menu);
+      wrapper = mount(<MenuNaked {...defaultProps} theme={{}} classes={classes} />);
       instance = wrapper.instance();
 
       selectedItemFocusSpy = spy();
@@ -123,32 +156,25 @@ describe('<Menu />', () => {
       menuListSpy = {};
       menuListSpy.clientHeight = MENU_LIST_HEIGHT;
       menuListSpy.style = {};
-      menuListSpy.firstChild = {
-        focus: menuListFocusSpy,
-      };
+      menuListSpy.firstChild = { focus: menuListFocusSpy };
 
       findDOMNodeStub = stub(ReactDOM, 'findDOMNode').callsFake(arg => {
         if (arg === SELECTED_ITEM_KEY) {
-          return {
-            focus: selectedItemFocusSpy,
-          };
+          return { focus: selectedItemFocusSpy };
         }
         return menuListSpy;
       });
 
-      elementForHandleEnter = {
-        clientHeight: MENU_LIST_HEIGHT,
-      };
+      elementForHandleEnter = { clientHeight: MENU_LIST_HEIGHT };
     });
 
     after(() => {
-      mount.cleanUp();
       findDOMNodeStub.restore();
     });
 
     beforeEach(() => {
-      menuListFocusSpy.reset();
-      selectedItemFocusSpy.reset();
+      menuListFocusSpy.resetHistory();
+      selectedItemFocusSpy.resetHistory();
     });
 
     it('should call props.onEnter with element if exists', () => {

@@ -1,5 +1,3 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
@@ -14,13 +12,17 @@ const styles = {
   },
 };
 
-function Icons(props) {
+type ProvidedProps = {
+  classes: Object,
+  theme?: Object,
+};
+
+function Icons(props: ProvidedProps) {
   return (
     <div className={props.classes.root}>
       <Icon>add_circle</Icon>
-      <Icon color="accent">add_circle</Icon>
+      <Icon color="secondary">add_circle</Icon>
       <Icon color="action">add_circle</Icon>
-      <Icon color="contrast">add_circle</Icon>
       <Icon color="disabled">add_circle</Icon>
       <Icon color="primary" style={{ fontSize: 30 }}>
         add_circle

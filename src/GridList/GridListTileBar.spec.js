@@ -1,5 +1,3 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow } from '../test-utils';
@@ -9,9 +7,7 @@ describe('<GridListTileBar />', () => {
   let shallow;
 
   before(() => {
-    shallow = createShallow({
-      dive: true,
-    });
+    shallow = createShallow({ dive: true });
   });
 
   const tileData = {

@@ -1,50 +1,29 @@
-// @flow
-
 import React from 'react';
-import type { Element } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import warning from 'warning';
 import withStyles from '../styles/withStyles';
 
-export const styles = {
+export const styles = theme => ({
   root: {
     width: 36,
     height: 36,
-    fontSize: 18,
+    fontSize: theme.typography.pxToRem(18),
     marginRight: 4,
   },
   icon: {
     width: 20,
     height: 20,
+    fontSize: theme.typography.pxToRem(20),
   },
-};
-
-type DefaultProps = {
-  classes: Object,
-};
-
-export type Props = {
-  /**
-   * The content of the component, normally `Avatar`.
-   */
-  children: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-};
-
-type AllProps = DefaultProps & Props;
+});
 
 /**
  * It's a simple wrapper to apply the `dense` mode styles to `Avatar`.
  */
-function ListItemAvatar(props: AllProps, context: { dense: boolean }) {
+function ListItemAvatar(props, context) {
+  const { children, classes, className: classNameProp, ...other } = props;
+
   if (context.dense === undefined) {
     warning(
       false,
@@ -53,8 +32,6 @@ function ListItemAvatar(props: AllProps, context: { dense: boolean }) {
     );
     return props.children;
   }
-
-  const { children, classes, className: classNameProp, ...other } = props;
 
   return React.cloneElement(children, {
     className: classNames(
@@ -69,6 +46,21 @@ function ListItemAvatar(props: AllProps, context: { dense: boolean }) {
     ...other,
   });
 }
+
+ListItemAvatar.propTypes = {
+  /**
+   * The content of the component, normally `Avatar`.
+   */
+  children: PropTypes.element.isRequired,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+};
 
 ListItemAvatar.contextTypes = {
   dense: PropTypes.bool,

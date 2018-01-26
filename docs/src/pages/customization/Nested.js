@@ -1,5 +1,3 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import Checkbox from 'material-ui/Checkbox';
@@ -14,10 +12,11 @@ const styles = theme => ({
   },
 });
 
-let NestedCheckbox = props =>
+let NestedCheckbox = props => (
   <Checkbox defaultChecked className={props.classes.danger}>
     {'Danger'}
-  </Checkbox>;
+  </Checkbox>
+);
 
 NestedCheckbox.propTypes = {
   classes: PropTypes.object.isRequired,

@@ -1,107 +1,97 @@
-// @flow weak
-
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
+import SwitchBase from '../internal/SwitchBase';
+import RadioButtonCheckedIcon from '../internal/svg-icons/RadioButtonChecked';
+import RadioButtonUncheckedIcon from '../internal/svg-icons/RadioButtonUnchecked';
 import withStyles from '../styles/withStyles';
-import createSwitch from '../internal/SwitchBase';
-import RadioButtonCheckedIcon from '../svg-icons/radio-button-checked';
-import RadioButtonUncheckedIcon from '../svg-icons/radio-button-unchecked';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   default: {
     color: theme.palette.text.secondary,
   },
   checked: {
-    color: theme.palette.primary[500],
+    color: theme.palette.primary.main,
   },
   disabled: {
     color: theme.palette.action.disabled,
   },
 });
 
-const Radio = withStyles(styles, { name: 'MuiRadio' })(
-  createSwitch({
-    inputType: 'radio',
-    defaultIcon: <RadioButtonUncheckedIcon />,
-    defaultCheckedIcon: <RadioButtonCheckedIcon />,
-  }),
-);
+function Radio(props) {
+  return (
+    <SwitchBase
+      inputType="radio"
+      icon={<RadioButtonUncheckedIcon />}
+      checkedIcon={<RadioButtonCheckedIcon />}
+      {...props}
+    />
+  );
+}
 
-Radio.displayName = 'Radio';
-
-export default Radio;
-
-export type Props = {
+Radio.propTypes = {
   /**
    * If `true`, the component is checked.
    */
-  checked?: boolean | string,
-  /**
-   * The CSS class name of the root element when checked.
-   */
-  checkedClassName?: string,
+  checked: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
   /**
    * The icon to display when the component is checked.
-   * If a string is provided, it will be used as a font ligature.
    */
-  checkedIcon?: Element<*>,
+  checkedIcon: PropTypes.node,
   /**
    * Useful to extend the style applied to components.
    */
-  classes?: Object,
+  classes: PropTypes.object.isRequired,
   /**
    * @ignore
    */
-  className?: string,
+  className: PropTypes.string,
   /**
    * @ignore
    */
-  defaultChecked?: boolean,
+  defaultChecked: PropTypes.bool,
   /**
    * If `true`, the switch will be disabled.
    */
-  disabled?: boolean,
-  /**
-   * The CSS class name of the root element when disabled.
-   */
-  disabledClassName?: string,
+  disabled: PropTypes.bool,
   /**
    * If `true`, the ripple effect will be disabled.
    */
-  disableRipple?: boolean,
+  disableRipple: PropTypes.bool,
   /**
    * The icon to display when the component is unchecked.
-   * If a string is provided, it will be used as a font ligature.
    */
-  icon?: Element<*>,
+  icon: PropTypes.node,
   /**
    * Properties applied to the `input` element.
    */
-  inputProps?: Object,
+  inputProps: PropTypes.object,
   /**
    * Use that property to pass a ref callback to the native input component.
    */
-  inputRef?: Function,
+  inputRef: PropTypes.func,
+  /**
+   * The input component property `type`.
+   */
+  inputType: PropTypes.string,
   /*
    * @ignore
    */
-  name?: string,
+  name: PropTypes.string,
   /**
    * Callback fired when the state is changed.
    *
    * @param {object} event The event source of the callback
    * @param {boolean} checked The `checked` value of the switch
    */
-  onChange?: Function,
+  onChange: PropTypes.func,
   /**
    * @ignore
    */
-  tabIndex?: string,
+  tabIndex: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   /**
    * The value of the component.
    */
-  value?: string,
+  value: PropTypes.string,
 };
 
-// This is here solely to trigger api doc generation
-export const RadioDocs = (props: Props) => <span />; // eslint-disable-line no-unused-vars
+export default withStyles(styles, { name: 'MuiRadio' })(Radio);

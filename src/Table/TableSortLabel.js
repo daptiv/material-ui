@@ -1,20 +1,19 @@
-// @flow
+// @inheritedComponent ButtonBase
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import ArrowDownwardIcon from '../internal/svg-icons/ArrowDownward';
 import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
-import ArrowDownwardIcon from '../svg-icons/arrow-downward';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     cursor: 'pointer',
     display: 'inline-flex',
     justifyContent: 'flex-start',
     flexDirection: 'inherit',
     alignItems: 'center',
-    background: 'transparent',
     '&:hover': {
       color: theme.palette.text.primary,
     },
@@ -60,14 +59,14 @@ function TableSortLabel(props) {
     classNameProp,
   );
 
-  const iconClasses = classNames(classes.icon, {
+  const iconClassName = classNames(classes.icon, {
     [classes[direction]]: !!direction,
   });
 
   return (
     <ButtonBase className={className} component="span" disableRipple {...other}>
       {children}
-      <ArrowDownwardIcon className={iconClasses} />
+      <ArrowDownwardIcon className={iconClassName} />
     </ButtonBase>
   );
 }

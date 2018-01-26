@@ -1,8 +1,7 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
+import Typography from '../Typography';
 import ListItemText from './ListItemText';
 
 describe('<ListItemText />', () => {
@@ -41,10 +40,13 @@ describe('<ListItemText />', () => {
     it('should render primary text', () => {
       const wrapper = shallow(<ListItemText primary="This is the primary text" />);
       assert.strictEqual(wrapper.children().length, 1, 'should have 1 child');
-      assert.strictEqual(wrapper.childAt(0).name(), 'withStyles(Typography)');
+      assert.strictEqual(wrapper.childAt(0).type(), Typography);
       assert.strictEqual(wrapper.childAt(0).props().type, 'subheading');
       assert.strictEqual(
-        wrapper.childAt(0).children().equals('This is the primary text'),
+        wrapper
+          .childAt(0)
+          .children()
+          .equals('This is the primary text'),
         true,
         'should have the primary text',
       );
@@ -61,15 +63,18 @@ describe('<ListItemText />', () => {
     it('should render secondary text', () => {
       const wrapper = shallow(<ListItemText secondary="This is the secondary text" />);
       assert.strictEqual(wrapper.children().length, 1, 'should have 1 child');
-      assert.strictEqual(wrapper.childAt(0).name(), 'withStyles(Typography)');
+      assert.strictEqual(wrapper.childAt(0).type(), Typography);
       assert.strictEqual(wrapper.childAt(0).props().type, 'body1');
       assert.strictEqual(
         wrapper.childAt(0).props().color,
-        'secondary',
-        'should have the secondary property',
+        'textSecondary',
+        'should have the text secondary property',
       );
       assert.strictEqual(
-        wrapper.childAt(0).children().equals('This is the secondary text'),
+        wrapper
+          .childAt(0)
+          .children()
+          .equals('This is the secondary text'),
         true,
         'should have the secondary text',
       );
@@ -89,19 +94,25 @@ describe('<ListItemText />', () => {
       );
 
       assert.strictEqual(wrapper.children().length, 2, 'should have 2 children');
-      assert.strictEqual(wrapper.childAt(0).name(), 'withStyles(Typography)');
+      assert.strictEqual(wrapper.childAt(0).type(), Typography);
       assert.strictEqual(wrapper.childAt(0).props().type, 'subheading');
       assert.strictEqual(
-        wrapper.childAt(0).children().equals('This is the primary text'),
+        wrapper
+          .childAt(0)
+          .children()
+          .equals('This is the primary text'),
         true,
         'should have the primary text',
       );
 
-      assert.strictEqual(wrapper.childAt(1).name(), 'withStyles(Typography)');
+      assert.strictEqual(wrapper.childAt(1).type(), Typography);
       assert.strictEqual(wrapper.childAt(1).props().type, 'body1');
-      assert.strictEqual(wrapper.childAt(1).props().color, 'secondary');
+      assert.strictEqual(wrapper.childAt(1).props().color, 'textSecondary');
       assert.strictEqual(
-        wrapper.childAt(1).children().equals('This is the secondary text'),
+        wrapper
+          .childAt(1)
+          .children()
+          .equals('This is the secondary text'),
         true,
         'should have the secondary text',
       );
@@ -124,21 +135,58 @@ describe('<ListItemText />', () => {
     );
 
     assert.strictEqual(wrapper.children().length, 2, 'should have 2 children');
-    assert.strictEqual(wrapper.childAt(0).name(), 'withStyles(Typography)');
+    assert.strictEqual(wrapper.childAt(0).type(), Typography);
     assert.strictEqual(wrapper.childAt(0).props().type, 'subheading');
     assert.strictEqual(
-      wrapper.childAt(0).children().equals('This is the primary text'),
+      wrapper
+        .childAt(0)
+        .children()
+        .equals('This is the primary text'),
       true,
       'should have the primary text',
     );
 
-    assert.strictEqual(wrapper.childAt(1).name(), 'withStyles(Typography)');
+    assert.strictEqual(wrapper.childAt(1).type(), Typography);
     assert.strictEqual(wrapper.childAt(1).props().type, 'body1');
-    assert.strictEqual(wrapper.childAt(1).props().color, 'secondary');
+    assert.strictEqual(wrapper.childAt(1).props().color, 'textSecondary');
     assert.strictEqual(
-      wrapper.childAt(1).children().equals('This is the secondary text'),
+      wrapper
+        .childAt(1)
+        .children()
+        .equals('This is the secondary text'),
       true,
       'should have the secondary text',
+    );
+  });
+
+  it('should render primary and secondary text with customisable classes', () => {
+    const textClasses = {
+      primary: 'GeneralText',
+      secondary: 'SecondaryText',
+    };
+    const wrapper = shallow(
+      <ListItemText
+        primary="This is the primary text"
+        secondary="This is the secondary text"
+        classes={textClasses}
+      />,
+    );
+
+    assert.strictEqual(
+      wrapper
+        .childAt(0)
+        .props()
+        .className.includes('GeneralText'),
+      true,
+      'should have the primary text class',
+    );
+    assert.strictEqual(
+      wrapper
+        .childAt(1)
+        .props()
+        .className.includes('SecondaryText'),
+      true,
+      'should have the secondary text class',
     );
   });
 });

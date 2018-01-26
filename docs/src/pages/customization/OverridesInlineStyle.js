@@ -1,5 +1,3 @@
-// @flow weak
-
 import React from 'react';
 import Button from 'material-ui/Button';
 
@@ -15,11 +13,7 @@ const style = {
 };
 
 function OverridesInlineStyle() {
-  return (
-    <Button style={style}>
-      {'inline-style'}
-    </Button>
-  );
+  return <Button style={style}>inline-style</Button>;
 }
 
 export default OverridesInlineStyle;

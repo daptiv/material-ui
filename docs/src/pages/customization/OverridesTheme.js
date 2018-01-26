@@ -1,5 +1,3 @@
-// @flow weak
-
 import React from 'react';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Button from 'material-ui/Button';
@@ -25,9 +23,7 @@ const theme = createMuiTheme({
 function OverridesTheme() {
   return (
     <MuiThemeProvider theme={theme}>
-      <Button>
-        {'Overrides'}
-      </Button>
+      <Button>Overrides</Button>
     </MuiThemeProvider>
   );
 }

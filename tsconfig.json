@@ -6,12 +6,13 @@
     "sourceMap": true,
     "jsx": "react",
     "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
     "forceConsistentCasingInFileNames": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noEmit": true
+    "noEmit": true,
+    "experimentalDecorators": true
   },
-  "include": [
-    "typings/*",
-    "test/typescript/*"
-  ]
+  "include": ["src/**/*", "test/typescript/*"]
 }

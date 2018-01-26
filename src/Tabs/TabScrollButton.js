@@ -1,16 +1,13 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import KeyboardArrowLeft from '../internal/svg-icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '../internal/svg-icons/KeyboardArrowRight';
 import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
-import KeyboardArrowLeft from '../svg-icons/keyboard-arrow-left';
-import KeyboardArrowRight from '../svg-icons/keyboard-arrow-right';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
-    background: 'none',
     color: 'inherit',
     flex: `0 0 ${theme.spacing.unit * 7}px`,
   },
@@ -29,7 +26,7 @@ function TabScrollButton(props) {
   }
 
   return (
-    <ButtonBase className={className} onClick={onClick} tabIndex="-1" {...other}>
+    <ButtonBase className={className} onClick={onClick} tabIndex={-1} {...other}>
       {direction === 'left' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
     </ButtonBase>
   );

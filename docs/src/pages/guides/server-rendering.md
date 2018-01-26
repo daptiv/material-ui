@@ -1,14 +1,13 @@
 # Server Rendering
 
-The most common use case for server-side rendering is to handle the *initial render* when a user (or search engine crawler) first requests our app.
+The most common use case for server-side rendering is to handle the *initial render* when a user (or search engine crawler) first requests your app.
 When the server receives the request, it renders the required component(s) into an HTML string, and then sends it as a response to the client.
 From that point on, the client takes over rendering duties.
 
 ## Material-UI on the Server
 
-Material-UI was designed from the ground-up with the constraint of rendering on the Server, but it's up to users to makes sure it's correctly integrated.
-We must provide to the page the needed style.
-It's important that we provide the page with the required CSS, otherwise the page will render with just the HTML then wait for the CSS to be injected by the client, causing it to flicker.
+Material-UI was designed from the ground-up with the constraint of rendering on the Server, but it's up to you to make sure it's correctly integrated.
+It's important to provide the page with the required CSS, otherwise the page will render with just the HTML then wait for the CSS to be injected by the client, causing it to flicker.
 To inject the style down to the client, we need to:
 
 1. Create a fresh, new `sheetsRegistry` and `theme` instance on every request.
@@ -65,14 +64,11 @@ The key step in server side rendering is to render the initial HTML of our compo
 
 We then get the CSS from our `sheetsRegistry` using `sheetsRegistry.toString()`. We will see how this is passed along in our `renderFullPage` function.
 
-```js
+```jsx
 import { renderToString } from 'react-dom/server'
-import { JssProvider, SheetsRegistry } from 'react-jss'
-import { create } from 'jss';
-import preset from 'jss-preset-default';
-import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-import createPalette from 'material-ui/styles/palette';
-import createGenerateClassName from 'material-ui/styles/createGenerateClassName';
+import { SheetsRegistry } from 'react-jss/lib/jss';
+import JssProvider from 'react-jss/lib/JssProvider';
+import { MuiThemeProvider, createMuiTheme, createGenerateClassName } from 'material-ui/styles';
 import { green, red } from 'material-ui/colors';
 
 function handleRender(req, res) {
@@ -81,20 +77,18 @@ function handleRender(req, res) {
 
   // Create a theme instance.
   const theme = createMuiTheme({
-    palette: createPalette({
+    palette: {
       primary: green,
       accent: red,
       type: 'light',
-    }),
+    },
   });
 
-  // Configure JSS
-  const jss = create(preset());
-  jss.options.createGenerateClassName = createGenerateClassName;
+  const generateClassName = createGenerateClassName();
 
   // Render the component to a string.
   const html = renderToString(
-    <JssProvider registry={sheetsRegistry} jss={jss}>
+    <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
       <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
         <App />
       </MuiThemeProvider>
@@ -132,20 +126,19 @@ function renderFullPage(html, css) {
 
 ### The Client Side
 
-The client side is straightforward. All we need to do is removing the server-side generated CSS.
+The client side is straightforward. All we need to do is remove the server-side generated CSS.
 Let's take a look at our client file:
 
 `client.js`
 
 ```jsx
-import React, { Component } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-import createPalette from 'material-ui/styles/palette';
 import { green, red } from 'material-ui/colors';
 import App from './App';
 
-class Main extends Component {
+class Main extends React.Component {
   // Remove the server-side injected CSS.
   componentDidMount() {
     const jssStyles = document.getElementById('jss-server-side');
@@ -161,11 +154,11 @@ class Main extends Component {
 
 // Create a theme instance.
 const theme = createMuiTheme({
-  palette: createPalette({
+  palette: {
     primary: green,
     accent: red,
     type: 'light',
-  }),
+  },
 });
 
 render(

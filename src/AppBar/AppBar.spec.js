@@ -1,5 +1,3 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
@@ -11,12 +9,11 @@ describe('<AppBar />', () => {
 
   before(() => {
     shallow = createShallow({ dive: true });
-    classes = getClasses(<AppBar />);
+    classes = getClasses(<AppBar>Hello World</AppBar>);
   });
 
   it('should render a Paper component', () => {
     const wrapper = shallow(<AppBar>Hello World</AppBar>);
-    assert.strictEqual(wrapper.name(), 'withStyles(Paper)');
     assert.strictEqual(wrapper.props().elevation, 4, 'should render with a 4dp shadow');
   });
 
@@ -28,15 +25,11 @@ describe('<AppBar />', () => {
       true,
       'should not have the primary class',
     );
-    assert.strictEqual(
-      wrapper.hasClass(classes.colorAccent),
-      false,
-      'should not have the accent class',
-    );
+    assert.strictEqual(wrapper.hasClass(classes.colorSecondary), false);
   });
 
   it('should render the custom className and the appBar class', () => {
-    const wrapper = shallow(<AppBar className="test-class-name" />);
+    const wrapper = shallow(<AppBar className="test-class-name">Hello World</AppBar>);
     assert.strictEqual(wrapper.is('.test-class-name'), true, 'should pass the test className');
     assert.strictEqual(wrapper.hasClass(classes.root), true);
     assert.strictEqual(
@@ -54,26 +47,18 @@ describe('<AppBar />', () => {
       true,
       'should not have the primary class',
     );
-    assert.strictEqual(
-      wrapper.hasClass(classes.colorAccent),
-      false,
-      'should not have the accent class',
-    );
+    assert.strictEqual(wrapper.hasClass(classes.colorSecondary), false);
   });
 
-  it('should render an accent app bar', () => {
-    const wrapper = shallow(<AppBar color="accent">Hello World</AppBar>);
+  it('should render an secondary app bar', () => {
+    const wrapper = shallow(<AppBar color="secondary">Hello World</AppBar>);
     assert.strictEqual(wrapper.hasClass(classes.root), true);
     assert.strictEqual(
       wrapper.hasClass(classes.colorPrimary),
       false,
       'should not have the primary class',
     );
-    assert.strictEqual(
-      wrapper.hasClass(classes.colorAccent),
-      true,
-      'should not have the accent class',
-    );
+    assert.strictEqual(wrapper.hasClass(classes.colorSecondary), true);
   });
 
   describe('Dialog', () => {

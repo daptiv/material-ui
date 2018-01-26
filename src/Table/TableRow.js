@@ -1,30 +1,37 @@
-// @flow
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
+    color: 'inherit',
+    display: 'table-row',
     height: 48,
     '&:focus': {
       outline: 'none',
     },
+    verticalAlign: 'middle',
   },
-  head: {
-    height: 64,
-  },
-  footer: {
+  typeHead: {
     height: 56,
+  },
+  typeFooter: {
+    height: 56,
+  },
+  selected: {
+    backgroundColor:
+      theme.palette.type === 'light'
+        ? 'rgba(0, 0, 0, 0.04)' // grey[100]
+        : 'rgba(255, 255, 255, 0.08)',
   },
   hover: {
     '&:hover': {
-      background: theme.palette.background.contentFrame,
+      backgroundColor:
+        theme.palette.type === 'light'
+          ? 'rgba(0, 0, 0, 0.07)' // grey[200]
+          : 'rgba(255, 255, 255, 0.14)',
     },
-  },
-  selected: {
-    background: theme.palette.background.appBar,
   },
 });
 
@@ -36,7 +43,6 @@ function TableRow(props, context) {
   const {
     classes,
     className: classNameProp,
-    children,
     component: Component,
     hover,
     selected,
@@ -47,19 +53,15 @@ function TableRow(props, context) {
   const className = classNames(
     classes.root,
     {
-      [classes.head]: table && table.head,
-      [classes.footer]: table && table.footer,
+      [classes.typeHead]: table && table.head,
+      [classes.typeFooter]: table && table.footer,
       [classes.hover]: table && hover,
       [classes.selected]: table && selected,
     },
     classNameProp,
   );
 
-  return (
-    <Component className={className} {...other}>
-      {children}
-    </Component>
-  );
+  return <Component className={className} {...other} />;
 }
 
 TableRow.propTypes = {
@@ -79,7 +81,7 @@ TableRow.propTypes = {
    * The component used for the root node.
    * Either a string to use a DOM element or a component.
    */
-  component: PropTypes.string,
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   /**
    * If `true`, the table row will shade on hover.
    */
@@ -91,9 +93,9 @@ TableRow.propTypes = {
 };
 
 TableRow.defaultProps = {
+  component: 'tr',
   hover: false,
   selected: false,
-  component: 'tr',
 };
 
 TableRow.contextTypes = {

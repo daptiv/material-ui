@@ -1,9 +1,7 @@
+// We are more permissive with the documentation as the demos are directly copy and paste by our
+// users.
 module.exports = {
-  settings: {
-    'import/resolver': {
-      webpack: {
-        config: './webpackBaseConfig.js',
-      },
-    },
+  rules: {
+    'react/no-multi-comp': 'off',
   },
 };

@@ -1,17 +1,17 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { capitalizeFirstLetter } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 
 const RADIUS = 12;
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     position: 'relative',
-    display: 'inline-block',
+    display: 'inline-flex',
+    // For correct alignment with the text.
+    verticalAlign: 'middle',
   },
   badge: {
     display: 'flex',
@@ -25,37 +25,48 @@ export const styles = (theme: Object) => ({
     right: -RADIUS,
     fontFamily: theme.typography.fontFamily,
     fontWeight: theme.typography.fontWeight,
-    fontSize: RADIUS,
+    fontSize: theme.typography.pxToRem(RADIUS),
     width: RADIUS * 2,
     height: RADIUS * 2,
     borderRadius: '50%',
     backgroundColor: theme.palette.color,
     color: theme.palette.textColor,
+    zIndex: 1, // Render the badge on top of potential ripples.
   },
   colorPrimary: {
-    backgroundColor: theme.palette.primary[500],
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
-  colorAccent: {
-    backgroundColor: theme.palette.accent.A200,
-    color: theme.palette.getContrastText(theme.palette.accent.A200),
+  colorSecondary: {
+    backgroundColor: theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
+  },
+  colorError: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
   },
 });
 
 function Badge(props) {
-  const { badgeContent, classes, className: classNameProp, color, children, ...other } = props;
-  const className = classNames(classes.root, classNameProp);
+  const {
+    badgeContent,
+    children,
+    classes,
+    className: classNameProp,
+    color,
+    component: ComponentProp,
+    ...other
+  } = props;
+
   const badgeClassName = classNames(classes.badge, {
-    [classes[`color${capitalizeFirstLetter(color)}`]]: color !== 'default',
+    [classes[`color${capitalize(color)}`]]: color !== 'default',
   });
 
   return (
-    <div className={className} {...other}>
+    <ComponentProp className={classNames(classes.root, classNameProp)} {...other}>
       {children}
-      <span className={badgeClassName}>
-        {badgeContent}
-      </span>
-    </div>
+      <span className={badgeClassName}>{badgeContent}</span>
+    </ComponentProp>
   );
 }
 
@@ -79,11 +90,17 @@ Badge.propTypes = {
   /**
    * The color of the component. It's using the theme palette when that makes sense.
    */
-  color: PropTypes.oneOf(['default', 'primary', 'accent']),
+  color: PropTypes.oneOf(['default', 'primary', 'secondary', 'error']),
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
 };
 
 Badge.defaultProps = {
   color: 'default',
+  component: 'span',
 };
 
 export default withStyles(styles, { name: 'MuiBadge' })(Badge);

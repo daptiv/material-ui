@@ -1,26 +1,24 @@
-// @flow
+// @inheritedComponent ButtonBase
 
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import { fade } from '../styles/colorManipulator';
 import ButtonBase from '../ButtonBase';
+import { capitalize } from '../utils/helpers';
+import { isMuiElement } from '../utils/reactHelpers';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     ...theme.typography.button,
-    lineHeight: '1em',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    lineHeight: '1.4em', // Improve readability for multiline button.
     boxSizing: 'border-box',
-    minWidth: 88,
+    minWidth: theme.spacing.unit * 11,
     minHeight: 36,
-    padding: `11px ${theme.spacing.unit * 2}px`,
+    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
     borderRadius: 2,
     color: theme.palette.text.primary,
-    backgroundColor: 'transparent',
     transition: theme.transitions.create(['background-color', 'box-shadow'], {
       duration: theme.transitions.duration.short,
     }),
@@ -36,12 +34,6 @@ export const styles = (theme: Object) => ({
       },
     },
   },
-  dense: {
-    padding: `10px ${theme.spacing.unit}px`,
-    minWidth: 64,
-    minHeight: 32,
-    fontSize: theme.typography.fontSize - 1,
-  },
   label: {
     width: '100%',
     display: 'inherit',
@@ -49,29 +41,19 @@ export const styles = (theme: Object) => ({
     justifyContent: 'inherit',
   },
   flatPrimary: {
-    color: theme.palette.primary[500],
+    color: theme.palette.primary.main,
     '&:hover': {
-      backgroundColor: fade(theme.palette.primary[500], 0.12),
+      backgroundColor: fade(theme.palette.primary.main, 0.12),
       // Reset on mouse devices
       '@media (hover: none)': {
         backgroundColor: 'transparent',
       },
     },
   },
-  flatAccent: {
-    color: theme.palette.accent.A200,
+  flatSecondary: {
+    color: theme.palette.secondary.main,
     '&:hover': {
-      backgroundColor: fade(theme.palette.accent.A200, 0.12),
-      // Reset on mouse devices
-      '@media (hover: none)': {
-        backgroundColor: 'transparent',
-      },
-    },
-  },
-  flatContrast: {
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
-    '&:hover': {
-      backgroundColor: fade(theme.palette.getContrastText(theme.palette.primary[500]), 0.12),
+      backgroundColor: fade(theme.palette.secondary.main, 0.12),
       // Reset on mouse devices
       '@media (hover: none)': {
         backgroundColor: 'transparent',
@@ -93,7 +75,7 @@ export const styles = (theme: Object) => ({
     },
     '&$disabled': {
       boxShadow: theme.shadows[0],
-      backgroundColor: theme.palette.text.divider,
+      backgroundColor: theme.palette.action.disabledBackground,
     },
     '&:hover': {
       backgroundColor: theme.palette.grey.A100,
@@ -102,39 +84,32 @@ export const styles = (theme: Object) => ({
         backgroundColor: theme.palette.grey[300],
       },
       '&$disabled': {
-        backgroundColor: theme.palette.text.divider,
-        // Reset on mouse devices
-        '@media (hover: none)': {
-          backgroundColor: theme.palette.grey[300],
-        },
+        backgroundColor: theme.palette.action.disabledBackground,
       },
     },
   },
   keyboardFocused: {},
   raisedPrimary: {
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
-    backgroundColor: theme.palette.primary[500],
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.primary.main,
     '&:hover': {
-      backgroundColor: theme.palette.primary[700],
+      backgroundColor: theme.palette.primary.dark,
       // Reset on mouse devices
       '@media (hover: none)': {
-        backgroundColor: theme.palette.primary[500],
+        backgroundColor: theme.palette.primary.main,
       },
     },
   },
-  raisedAccent: {
-    color: theme.palette.getContrastText(theme.palette.accent.A200),
-    backgroundColor: theme.palette.accent.A200,
+  raisedSecondary: {
+    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.secondary.main,
     '&:hover': {
-      backgroundColor: theme.palette.accent.A400,
+      backgroundColor: theme.palette.secondary.dark,
       // Reset on mouse devices
       '@media (hover: none)': {
-        backgroundColor: theme.palette.accent.A200,
+        backgroundColor: theme.palette.secondary.main,
       },
     },
-  },
-  raisedContrast: {
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
   },
   disabled: {
     color: theme.palette.action.disabled,
@@ -144,119 +119,79 @@ export const styles = (theme: Object) => ({
     padding: 0,
     minWidth: 0,
     width: 56,
+    fontSize: 24,
     height: 56,
     boxShadow: theme.shadows[6],
     '&:active': {
       boxShadow: theme.shadows[12],
     },
   },
+  mini: {
+    width: 40,
+    height: 40,
+  },
+  sizeSmall: {
+    padding: `${theme.spacing.unit - 1}px ${theme.spacing.unit}px`,
+    minWidth: theme.spacing.unit * 8,
+    minHeight: 32,
+    fontSize: theme.typography.pxToRem(theme.typography.fontSize - 1),
+  },
+  sizeLarge: {
+    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 3}px`,
+    minWidth: theme.spacing.unit * 14,
+    minHeight: 40,
+    fontSize: theme.typography.pxToRem(theme.typography.fontSize + 1),
+  },
+  fullWidth: {
+    width: '100%',
+  },
 });
 
-type DefaultProps = {
-  classes: Object,
-  color: 'default',
-  dense: boolean,
-  disabled: boolean,
-  fab: boolean,
-  disableFocusRipple: boolean,
-  raised: boolean,
-  disableRipple: boolean,
-  type: 'button',
-};
-
-export type Props = {
-  /**
-   * The content of the button.
-   */
-  children: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The color of the component. It's using the theme palette when that makes sense.
-   */
-  color?: 'default' | 'inherit' | 'primary' | 'accent' | 'contrast',
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   * The default value is a `button`.
-   */
-  component?: string | Function,
-  /**
-   * Uses a smaller minWidth, ideal for things like card actions.
-   */
-  dense?: boolean,
-  /**
-   * If `true`, the button will be disabled.
-   */
-  disabled?: boolean,
-  /**
-   * If `true`, the  keyboard focus ripple will be disabled.
-   * `disableRipple` must also be true.
-   */
-  disableFocusRipple?: boolean,
-  /**
-   * If `true`, the ripple effect will be disabled.
-   */
-  disableRipple?: boolean,
-  /**
-   * If `true`, well use floating action button styling.
-   */
-  fab?: boolean,
-  /**
-   * The URL to link to when the button is clicked.
-   * If defined, an `a` element will be used as the root node.
-   */
-  href?: string,
-  /**
-   * If `true`, the button will use raised styling.
-   */
-  raised?: boolean,
-  /**
-   * @ignore
-   */
-  type?: string,
-};
-
-type AllProps = DefaultProps & Props;
-
-function Button(props: AllProps) {
+function Button(props) {
   const {
-    children,
+    children: childrenProp,
     classes,
     className: classNameProp,
     color,
-    dense,
     disabled,
     disableFocusRipple,
     fab,
+    fullWidth,
+    mini,
     raised,
+    size,
     ...other
   } = props;
 
   const flat = !raised && !fab;
   const className = classNames(
+    classes.root,
     {
-      [classes.root]: true,
       [classes.raised]: raised || fab,
       [classes.fab]: fab,
+      [classes.mini]: fab && mini,
       [classes.colorInherit]: color === 'inherit',
       [classes.flatPrimary]: flat && color === 'primary',
-      [classes.flatAccent]: flat && color === 'accent',
-      [classes.flatContrast]: flat && color === 'contrast',
+      [classes.flatSecondary]: flat && color === 'secondary',
       [classes.raisedPrimary]: !flat && color === 'primary',
-      [classes.raisedAccent]: !flat && color === 'accent',
-      [classes.raisedContrast]: !flat && color === 'contrast',
-      [classes.dense]: dense,
+      [classes.raisedSecondary]: !flat && color === 'secondary',
+      [classes[`size${capitalize(size)}`]]: size !== 'medium',
       [classes.disabled]: disabled,
+      [classes.fullWidth]: fullWidth,
     },
     classNameProp,
   );
+
+  let children = childrenProp;
+
+  if (fab) {
+    children = React.Children.map(children, child => {
+      if (isMuiElement(child, ['Icon', 'SvgIcon'])) {
+        return React.cloneElement(child, { fontSize: true });
+      }
+      return child;
+    });
+  }
 
   return (
     <ButtonBase
@@ -266,21 +201,89 @@ function Button(props: AllProps) {
       keyboardFocusedClassName={classes.keyboardFocused}
       {...other}
     >
-      <span className={classes.label}>
-        {children}
-      </span>
+      <span className={classes.label}>{children}</span>
     </ButtonBase>
   );
 }
 
+Button.propTypes = {
+  /**
+   * The content of the button.
+   */
+  children: PropTypes.node.isRequired,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The color of the component. It's using the theme palette when that makes sense.
+   */
+  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   * The default value is a `button`.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  /**
+   * If `true`, the button will be disabled.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, the  keyboard focus ripple will be disabled.
+   * `disableRipple` must also be true.
+   */
+  disableFocusRipple: PropTypes.bool,
+  /**
+   * If `true`, the ripple effect will be disabled.
+   */
+  disableRipple: PropTypes.bool,
+  /**
+   * If `true`, will use floating action button styling.
+   */
+  fab: PropTypes.bool,
+  /**
+   * If `true`, the button will take up the full width of its container.
+   */
+  fullWidth: PropTypes.bool,
+  /**
+   * The URL to link to when the button is clicked.
+   * If defined, an `a` element will be used as the root node.
+   */
+  href: PropTypes.string,
+  /**
+   * If `true`, and `fab` is `true`, will use mini floating action button styling.
+   */
+  mini: PropTypes.bool,
+  /**
+   * If `true`, the button will use raised styling.
+   */
+  raised: PropTypes.bool,
+  /**
+   * The size of the button.
+   * `small` is equivalent to the dense button styling.
+   */
+  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  /**
+   * @ignore
+   */
+  type: PropTypes.string,
+};
+
 Button.defaultProps = {
   color: 'default',
-  dense: false,
   disabled: false,
-  fab: false,
   disableFocusRipple: false,
-  raised: false,
   disableRipple: false,
+  fab: false,
+  fullWidth: false,
+  mini: false,
+  raised: false,
+  size: 'medium',
   type: 'button',
 };
 

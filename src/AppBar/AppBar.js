@@ -1,88 +1,64 @@
-// @flow
+// @inheritedComponent Paper
 
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { capitalizeFirstLetter } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 import Paper from '../Paper';
 
-export const styles = (theme: Object) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
-    zIndex: theme.zIndex.appBar,
-  },
-  positionFixed: {
-    position: 'fixed',
-    top: 0,
-    left: 'auto',
-    right: 0,
-  },
-  positionAbsolute: {
-    position: 'absolute',
-    top: 0,
-    left: 'auto',
-    right: 0,
-  },
-  positionStatic: {
-    position: 'static',
-    flexShrink: 0,
-  },
-  colorDefault: {
-    backgroundColor: theme.palette.background.appBar,
-    color: theme.palette.getContrastText(theme.palette.background.appBar),
-  },
-  colorPrimary: {
-    backgroundColor: theme.palette.primary[500],
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
-  },
-  colorAccent: {
-    backgroundColor: theme.palette.accent.A200,
-    color: theme.palette.getContrastText(theme.palette.accent.A200),
-  },
-});
+export const styles = theme => {
+  const backgroundColorDefault =
+    theme.palette.type === 'light' ? theme.palette.grey[100] : theme.palette.grey[900];
 
-type DefaultProps = {
-  classes: Object,
-  color: 'primary',
-  position: 'fixed',
+  return {
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%',
+      boxSizing: 'border-box', // Prevent padding issue with the Modal and fixed positioned AppBar.
+      zIndex: theme.zIndex.appBar,
+      flexShrink: 0,
+    },
+    positionFixed: {
+      position: 'fixed',
+      top: 0,
+      left: 'auto',
+      right: 0,
+    },
+    positionAbsolute: {
+      position: 'absolute',
+      top: 0,
+      left: 'auto',
+      right: 0,
+    },
+    positionStatic: {
+      position: 'static',
+      flexShrink: 0,
+    },
+    colorDefault: {
+      backgroundColor: backgroundColorDefault,
+      color: theme.palette.getContrastText(backgroundColorDefault),
+    },
+    colorPrimary: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
+    },
+    colorSecondary: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.secondary.contrastText,
+    },
+  };
 };
 
-export type Props = {
-  /**
-   * The content of the component.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The color of the component. It's using the theme palette when that makes sense.
-   */
-  color?: 'inherit' | 'primary' | 'accent' | 'default',
-  /**
-   * The positioning type.
-   */
-  position?: 'static' | 'fixed' | 'absolute',
-};
-
-type AllProps = DefaultProps & Props;
-
-function AppBar(props: AllProps) {
+function AppBar(props) {
   const { children, classes, className: classNameProp, color, position, ...other } = props;
 
   const className = classNames(
     classes.root,
-    classes[`position${capitalizeFirstLetter(position)}`],
+    classes[`position${capitalize(position)}`],
     {
-      [classes[`color${capitalizeFirstLetter(color)}`]]: color !== 'inherit',
+      [classes[`color${capitalize(color)}`]]: color !== 'inherit',
       'mui-fixed': position === 'fixed', // Useful for the Dialog
     },
     classNameProp,
@@ -94,6 +70,29 @@ function AppBar(props: AllProps) {
     </Paper>
   );
 }
+
+AppBar.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node.isRequired,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The color of the component. It's using the theme palette when that makes sense.
+   */
+  color: PropTypes.oneOf(['inherit', 'primary', 'secondary', 'default']),
+  /**
+   * The positioning type.
+   */
+  position: PropTypes.oneOf(['static', 'fixed', 'absolute']),
+};
 
 AppBar.defaultProps = {
   color: 'primary',

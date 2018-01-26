@@ -1,4 +1,3 @@
-// @flow weak
 /* eslint-disable no-console */
 
 import path from 'path';
@@ -26,34 +25,14 @@ function createPackageFile() {
   })
     .then(data => JSON.parse(data))
     .then(packageData => {
-      const {
-        author,
-        version,
-        description,
-        keywords,
-        repository,
-        license,
-        bugs,
-        homepage,
-        peerDependencies,
-        dependencies,
-      } = packageData;
-
       const minimalPackage = {
+        ...packageData,
         name: 'material-ui-icons',
-        author,
-        version,
-        description,
         main: './index.js',
         module: './index.es.js',
         'jsnext:main': './index.es.js',
-        keywords,
-        repository,
-        license,
-        bugs,
-        homepage,
-        peerDependencies,
-        dependencies,
+        typings: './index.d.ts',
+        private: false,
       };
 
       return new Promise(resolve => {

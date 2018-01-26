@@ -1,12 +1,10 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     margin: 0,
     padding: `${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px \
@@ -20,11 +18,7 @@ function DialogTitle(props) {
 
   return (
     <div data-mui-test="DialogTitle" className={classNames(classes.root, className)} {...other}>
-      {disableTypography
-        ? children
-        : <Typography type="title">
-            {children}
-          </Typography>}
+      {disableTypography ? children : <Typography type="title">{children}</Typography>}
     </div>
   );
 }
@@ -33,7 +27,7 @@ DialogTitle.propTypes = {
   /**
    * The content of the component.
    */
-  children: PropTypes.node,
+  children: PropTypes.node.isRequired,
   /**
    * Useful to extend the style applied to components.
    */
@@ -44,7 +38,7 @@ DialogTitle.propTypes = {
   className: PropTypes.string,
   /**
    * If `true`, the children won't be wrapped by a typography component.
-   * For instance, that can be useful to can render an h4 instead of a
+   * For instance, this can be useful to render an h4 instead of the default h2.
    */
   disableTypography: PropTypes.bool,
 };

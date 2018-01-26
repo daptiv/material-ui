@@ -1,12 +1,18 @@
 // @flow
 
 import { assert } from 'chai';
-import { capitalizeFirstLetter, contains, find } from './helpers';
+import { capitalize, contains, find } from './helpers';
 
 describe('utils/helpers.js', () => {
-  describe('capitalizeFirstLetter', () => {
+  describe('capitalize', () => {
     it('should work', () => {
-      assert.strictEqual(capitalizeFirstLetter('foo'), 'Foo');
+      assert.strictEqual(capitalize('foo'), 'Foo');
+    });
+
+    it('should throw when not used correctly', () => {
+      assert.throw(() => {
+        capitalize();
+      }, /expects a string argument/);
     });
   });
 
@@ -26,10 +32,7 @@ describe('utils/helpers.js', () => {
 
   describe('contains(obj, pred)', () => {
     it('should check if an object contains the partial object', () => {
-      const obj = {
-        woofHelpers: 'meow',
-        cat: 'dog',
-      };
+      const obj = { woofHelpers: 'meow', cat: 'dog' };
       const pred = { cat: 'dog' };
       const failPred = { cat: 'meow' };
       assert.strictEqual(contains(obj, pred), true);

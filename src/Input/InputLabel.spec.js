@@ -1,8 +1,7 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
+import { FormLabel } from '../Form';
 import InputLabel from './InputLabel';
 
 describe('<InputLabel />', () => {
@@ -16,8 +15,8 @@ describe('<InputLabel />', () => {
 
   it('should render a FormLabel', () => {
     const wrapper = shallow(<InputLabel>Foo</InputLabel>);
-    assert.strictEqual(wrapper.name(), 'withStyles(FormLabel)');
-    assert.strictEqual(wrapper.childAt(0).node, 'Foo');
+    assert.strictEqual(wrapper.type(), FormLabel);
+    assert.strictEqual(wrapper.childAt(0).text(), 'Foo');
   });
 
   it('should have the root and animated classes by default', () => {
@@ -36,13 +35,20 @@ describe('<InputLabel />', () => {
     assert.strictEqual(wrapper.hasClass(classes.disabled), true);
   });
 
+  describe('prop: FormControlClasses', () => {
+    it('should be able to change the FormLabel style', () => {
+      const wrapper = shallow(<InputLabel FormControlClasses={{ foo: 'bar' }}>Foo</InputLabel>);
+      assert.strictEqual(wrapper.props().classes.foo, 'bar');
+    });
+  });
+
   describe('with muiFormControl context', () => {
     let wrapper;
     let muiFormControl;
 
     function setFormControlContext(muiFormControlContext) {
       muiFormControl = muiFormControlContext;
-      wrapper.setContext({ ...wrapper.context(), muiFormControl });
+      wrapper.setContext({ muiFormControl });
     }
 
     beforeEach(() => {
@@ -53,6 +59,12 @@ describe('<InputLabel />', () => {
       setFormControlContext({});
       assert.strictEqual(wrapper.hasClass(classes.formControl), true);
     });
+
+    it('should have the labelDense class when margin is dense', () => {
+      setFormControlContext({ margin: 'dense' });
+      assert.strictEqual(wrapper.hasClass(classes.labelDense), true);
+    });
+
     ['dirty', 'focused'].forEach(state => {
       describe(state, () => {
         beforeEach(() => {

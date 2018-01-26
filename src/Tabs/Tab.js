@@ -1,19 +1,18 @@
-// @flow weak
+// @inheritedComponent ButtonBase
 
-import React, { Component, isValidElement } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
-import { capitalizeFirstLetter } from '../utils/helpers';
-import Icon from '../Icon';
+import { capitalize } from '../utils/helpers';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     ...theme.typography.button,
     maxWidth: 264,
+    position: 'relative',
     minWidth: 72,
-    background: 'none',
     padding: 0,
     height: 48,
     flex: 'none',
@@ -25,27 +24,27 @@ export const styles = (theme: Object) => ({
   rootLabelIcon: {
     height: 72,
   },
-  rootAccent: {
-    color: theme.palette.text.secondary,
-  },
-  rootAccentSelected: {
-    color: theme.palette.accent.A200,
-  },
-  rootAccentDisabled: {
-    color: theme.palette.text.disabled,
+  rootInherit: {
+    color: 'inherit',
+    opacity: 0.7,
   },
   rootPrimary: {
     color: theme.palette.text.secondary,
   },
   rootPrimarySelected: {
-    color: theme.palette.primary[500],
+    color: theme.palette.primary.main,
   },
   rootPrimaryDisabled: {
     color: theme.palette.text.disabled,
   },
-  rootInherit: {
-    color: 'inherit',
-    opacity: 0.7,
+  rootSecondary: {
+    color: theme.palette.text.secondary,
+  },
+  rootSecondarySelected: {
+    color: theme.palette.secondary.main,
+  },
+  rootSecondaryDisabled: {
+    color: theme.palette.text.disabled,
   },
   rootInheritSelected: {
     opacity: 1,
@@ -55,6 +54,13 @@ export const styles = (theme: Object) => ({
   },
   fullWidth: {
     flexGrow: 1,
+  },
+  wrapper: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    flexDirection: 'column',
   },
   labelContainer: {
     paddingTop: 6,
@@ -67,24 +73,20 @@ export const styles = (theme: Object) => ({
     },
   },
   label: {
-    fontSize: theme.typography.fontSize,
+    fontSize: theme.typography.pxToRem(theme.typography.fontSize),
     whiteSpace: 'normal',
     [theme.breakpoints.up('md')]: {
-      fontSize: theme.typography.fontSize - 1,
+      fontSize: theme.typography.pxToRem(theme.typography.fontSize - 1),
     },
   },
   labelWrapped: {
-    [theme.breakpoints.down('md')]: {
-      fontSize: theme.typography.fontSize - 2,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: theme.typography.pxToRem(theme.typography.fontSize - 2),
     },
   },
 });
 
-class Tab extends Component {
-  static defaultProps = {
-    disabled: false,
-  };
-
+class Tab extends React.Component {
   state = {
     wrappedText: false,
   };
@@ -104,10 +106,12 @@ class Tab extends Component {
     }
   }
 
-  handleChange = event => {
+  handleChange = (event: SyntheticEvent<>) => {
     const { onChange, value, onClick } = this.props;
 
-    onChange(event, value);
+    if (onChange) {
+      onChange(event, value);
+    }
 
     if (onClick) {
       onClick(event);
@@ -131,7 +135,8 @@ class Tab extends Component {
       className: classNameProp,
       disabled,
       fullWidth,
-      icon: iconProp,
+      icon,
+      indicator,
       label: labelProp,
       onChange,
       selected,
@@ -141,21 +146,11 @@ class Tab extends Component {
       ...other
     } = this.props;
 
-    let icon;
-
-    if (iconProp !== undefined) {
-      icon = isValidElement(iconProp)
-        ? iconProp
-        : <Icon>
-            {iconProp}
-          </Icon>;
-    }
-
     let label;
 
     if (labelProp !== undefined) {
       label = (
-        <div className={classes.labelContainer}>
+        <span className={classes.labelContainer}>
           <span
             className={classNames(classes.label, {
               [classes.labelWrapped]: this.state.wrappedText,
@@ -166,16 +161,16 @@ class Tab extends Component {
           >
             {labelProp}
           </span>
-        </div>
+        </span>
       );
     }
 
     const className = classNames(
       classes.root,
+      classes[`root${capitalize(textColor)}`],
       {
-        [classes[`root${capitalizeFirstLetter(textColor)}`]]: true,
-        [classes[`root${capitalizeFirstLetter(textColor)}Disabled`]]: disabled,
-        [classes[`root${capitalizeFirstLetter(textColor)}Selected`]]: selected,
+        [classes[`root${capitalize(textColor)}Disabled`]]: disabled,
+        [classes[`root${capitalize(textColor)}Selected`]]: selected,
         [classes.rootLabelIcon]: icon && label,
         [classes.fullWidth]: fullWidth,
       },
@@ -184,7 +179,7 @@ class Tab extends Component {
 
     let style = {};
 
-    if (textColor !== 'accent' && textColor !== 'inherit') {
+    if (textColor !== 'secondary' && textColor !== 'inherit') {
       style.color = textColor;
     }
 
@@ -207,8 +202,11 @@ class Tab extends Component {
         {...other}
         onClick={this.handleChange}
       >
-        {icon}
-        {label}
+        <span className={classes.wrapper}>
+          {icon}
+          {label}
+        </span>
+        {indicator}
       </ButtonBase>
     );
   }
@@ -232,9 +230,15 @@ Tab.propTypes = {
    */
   fullWidth: PropTypes.bool,
   /**
-   * The icon element. If a string is provided, it will be used as a font ligature.
+   * The icon element.
    */
   icon: PropTypes.node,
+  /**
+   * @ignore
+   * For server side rendering consideration, we let the selected tab
+   * render the indicator.
+   */
+  indicator: PropTypes.node,
   /**
    * The label element.
    */
@@ -259,13 +263,18 @@ Tab.propTypes = {
    * @ignore
    */
   textColor: PropTypes.oneOfType([
-    PropTypes.oneOf(['accent', 'primary', 'inherit']),
     PropTypes.string,
+    PropTypes.oneOf(['secondary', 'primary', 'inherit']),
   ]),
   /**
    * You can provide your own value. Otherwise, we fallback to the child position index.
    */
   value: PropTypes.any,
+};
+
+Tab.defaultProps = {
+  disabled: false,
+  textColor: 'inherit',
 };
 
 export default withStyles(styles, { name: 'MuiTab' })(Tab);

@@ -1,10 +1,7 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import * as colors from 'material-ui/colors';
-import { getContrastRatio } from 'material-ui/styles/colorManipulator';
 
 const mainColors = [
   'Red',
@@ -45,8 +42,8 @@ export const styles = theme => ({
     alignItems: 'center',
   },
   colorGroup: {
-    padding: '16px 0',
-    margin: '0 15px 0 0',
+    padding: 0,
+    margin: `0 ${theme.spacing.unit * 2}px ${theme.spacing.unit * 2}px 0`,
     flexGrow: 1,
     [theme.breakpoints.up('sm')]: {
       flexGrow: 0,
@@ -56,24 +53,21 @@ export const styles = theme => ({
   colorValue: {
     ...theme.typography.caption,
     color: 'inherit',
+    fontWeight: 'inherit',
+  },
+  themeInherit: {
+    ...theme.typography,
+    fontWeight: 500,
   },
 });
 
-function getColorBlock(classes, colorName, colorValue, colorTitle) {
+function getColorBlock(classes, theme, colorName, colorValue, colorTitle) {
   const bgColor = colors[colorName][colorValue];
-
-  let fgColor = colors.common.fullBlack;
-  if (getContrastRatio(bgColor, fgColor) < 7) {
-    fgColor = colors.common.fullWhite;
-  }
+  const fgColor = theme.palette.getContrastText(bgColor);
 
   let blockTitle;
   if (colorTitle) {
-    blockTitle = (
-      <div className={classes.name}>
-        {colorName}
-      </div>
-    );
+    blockTitle = <div className={classes.name}>{colorName}</div>;
   }
 
   let rowStyle = {
@@ -91,35 +85,31 @@ function getColorBlock(classes, colorName, colorValue, colorTitle) {
   }
 
   return (
-    <li style={rowStyle} key={colorValue}>
+    <li style={rowStyle} key={colorValue} className={classes.themeInherit}>
       {blockTitle}
       <div className={classes.colorContainer}>
-        <span>
-          {colorValue}
-        </span>
-        <span className={classes.colorValue}>
-          {bgColor.toUpperCase()}
-        </span>
+        <span>{colorValue}</span>
+        <span className={classes.colorValue}>{bgColor.toUpperCase()}</span>
       </div>
     </li>
   );
 }
 
 function getColorGroup(options) {
-  const { classes, color, showAltPalette } = options;
+  const { classes, theme, color, showAltPalette } = options;
   const cssColor = color.replace(' ', '').replace(color.charAt(0), color.charAt(0).toLowerCase());
   let colorsList = [];
-  colorsList = mainPalette.map(mainValue => getColorBlock(classes, cssColor, mainValue));
+  colorsList = mainPalette.map(mainValue => getColorBlock(classes, theme, cssColor, mainValue));
 
   if (showAltPalette) {
     altPalette.forEach(altValue => {
-      colorsList.push(getColorBlock(classes, cssColor, altValue));
+      colorsList.push(getColorBlock(classes, theme, cssColor, altValue));
     });
   }
 
   return (
     <ul className={classes.colorGroup} key={cssColor}>
-      {getColorBlock(classes, cssColor, 500, true)}
+      {getColorBlock(classes, theme, cssColor, 500, true)}
       <div className={classes.blockSpace} />
       {colorsList}
     </ul>
@@ -127,13 +117,14 @@ function getColorGroup(options) {
 }
 
 function Color(props) {
-  const classes = props.classes;
+  const { classes, theme } = props;
 
   return (
     <div className={classes.root}>
       {mainColors.map(mainColor =>
         getColorGroup({
           classes,
+          theme,
           color: mainColor,
           showAltPalette: true,
         }),
@@ -141,6 +132,7 @@ function Color(props) {
       {neutralColors.map(neutralColor =>
         getColorGroup({
           classes,
+          theme,
           color: neutralColor,
           showAltPalette: false,
         }),
@@ -151,6 +143,7 @@ function Color(props) {
 
 Color.propTypes = {
   classes: PropTypes.object.isRequired,
+  theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Color);
+export default withStyles(styles, { withTheme: true })(Color);

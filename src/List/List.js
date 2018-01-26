@@ -1,18 +1,15 @@
-// @flow
-
-import React, { Component } from 'react';
-import type { Element } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     flex: '1 1 auto',
-    overflow: 'auto',
     listStyle: 'none',
     margin: 0,
     padding: 0,
+    position: 'relative',
   },
   padding: {
     paddingTop: theme.spacing.unit,
@@ -27,62 +24,7 @@ export const styles = (theme: Object) => ({
   },
 });
 
-type DefaultProps = {
-  component: string,
-  classes: Object,
-  dense: boolean,
-  disablePadding: boolean,
-};
-
-export type Props = {
-  /**
-   * The content of the component.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component?: string | Function,
-  /**
-   * If `true`, compact vertical padding designed for keyboard and mouse input will be used for
-   * the list and list items. The property is available to descendant components as the
-   * `dense` context.
-   */
-  dense?: boolean,
-  /**
-   * If `true`, vertical padding will be removed from the list.
-   */
-  disablePadding?: boolean,
-  /**
-   * Use that property to pass a ref callback to the root component.
-   */
-  rootRef?: Function,
-  /**
-   * The content of the component, normally `ListItem`.
-   */
-  subheader?: Element<*>,
-};
-
-type AllProps = DefaultProps & Props;
-
-class List extends Component<DefaultProps, AllProps, void> {
-  props: AllProps;
-  static defaultProps: DefaultProps = {
-    classes: {},
-    component: 'ul',
-    dense: false,
-    disablePadding: false,
-  };
-
+class List extends React.Component {
   getChildContext() {
     return {
       dense: this.props.dense,
@@ -91,14 +33,13 @@ class List extends Component<DefaultProps, AllProps, void> {
 
   render() {
     const {
+      children,
       classes,
       className: classNameProp,
-      component: ComponentProp,
-      disablePadding,
-      children,
+      component: Component,
       dense,
+      disablePadding,
       subheader,
-      rootRef,
       ...other
     } = this.props;
     const className = classNames(
@@ -112,13 +53,53 @@ class List extends Component<DefaultProps, AllProps, void> {
     );
 
     return (
-      <ComponentProp ref={rootRef} className={className} {...other}>
+      <Component className={className} {...other}>
         {subheader}
         {children}
-      </ComponentProp>
+      </Component>
     );
   }
 }
+
+List.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  /**
+   * If `true`, compact vertical padding designed for keyboard and mouse input will be used for
+   * the list and list items. The property is available to descendant components as the
+   * `dense` context.
+   */
+  dense: PropTypes.bool,
+  /**
+   * If `true`, vertical padding will be removed from the list.
+   */
+  disablePadding: PropTypes.bool,
+  /**
+   * The content of the subheader, normally `ListSubheader`.
+   */
+  subheader: PropTypes.node,
+};
+
+List.defaultProps = {
+  component: 'ul',
+  dense: false,
+  disablePadding: false,
+};
 
 List.childContextTypes = {
   dense: PropTypes.bool,

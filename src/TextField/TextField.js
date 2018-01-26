@@ -1,213 +1,270 @@
-// @flow
+// @inheritedComponent FormControl
 
 import React from 'react';
-import type { Element } from 'react';
+import warning from 'warning';
+import PropTypes from 'prop-types';
 import Input, { InputLabel } from '../Input';
 import FormControl from '../Form/FormControl';
 import FormHelperText from '../Form/FormHelperText';
+import Select from '../Select/Select';
 
-export type Props = {
-  /**
-   * This property helps users to fill forms faster, especially on mobile devices.
-   * The name can be confusion, it's more like an autofill.
-   * You can learn about it with that article
-   * https://developers.google.com/web/updates/2015/06/checkout-faster-with-autofill
-   */
-  autoComplete?: string,
-  /**
-   * If `true`, the input will be focused during the first mount.
-   */
-  autoFocus?: boolean,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The default value of the `Input` element.
-   */
-  defaultValue?: string,
-  /**
-   * If `true`, the input will be disabled.
-   */
-  disabled?: boolean,
-  /**
-   * If `true`, the label will be displayed in an error state.
-   */
-  error?: boolean,
-  /**
-   * Properties applied to the `FormHelperText` element.
-   */
-  FormHelperTextProps?: Object,
-  /**
-   * If `true`, the input will take up the full width of its container.
-   */
-  fullWidth?: boolean,
-  /**
-   * The helper text content.
-   */
-  helperText?: string | Element<*>,
-  /**
-   * The CSS class name of the helper text element.
-   */
-  helperTextClassName?: string,
-  /**
-   * The id of the `input` element.
-   */
-  id?: string,
-  /**
-   * The CSS class name of the `input` element.
-   */
-  inputClassName?: string,
-  /**
-   * The CSS class name of the `Input` element.
-   */
-  InputClassName?: string,
-  /**
-   * Properties applied to the `InputLabel` element.
-   */
-  InputLabelProps?: Object,
-  /**
-   * Properties applied to the `input` element.
-   */
-  inputProps?: Object,
-  /**
-   * Properties applied to the `Input` element.
-   */
-  InputProps?: Object,
-  /**
-   * Use that property to pass a ref callback to the native input component.
-   */
-  inputRef?: Function,
-  /**
-   * The label content.
-   */
-  label?: string | Element<*>,
-  /**
-   * The CSS class name of the label element.
-   */
-  labelClassName?: string,
-  /**
-   * If `true`, a textarea element will be rendered instead of an input.
-   */
-  multiline?: boolean,
-  /**
-   * Name attribute of the `Input` element.
-   */
-  name?: string,
-  placeholder?: string,
-  /**
-   * If `true`, the label is displayed as required.
-   */
-  required?: boolean,
-  /**
-   * Use that property to pass a ref callback to the root component.
-   */
-  rootRef?: Function,
-  /**
-   * Number of rows to display when multiline option is set to true.
-   */
-  rows?: string | number,
-  /**
-   * Maximum number of rows to display when multiline option is set to true.
-   */
-  rowsMax?: string | number,
-  /**
-   * Type attribute of the `Input` element. It should be a valid HTML5 input type.
-   */
-  type?: string,
-  /**
-   * The value of the `Input` element, required for a controlled component.
-   */
-  value?: string | number,
-  /**
-   * If `dense` | `normal`, will adjust vertical spacing of this and contained components.
-   */
-  margin?: 'none' | 'dense' | 'normal',
-};
-
-function TextField(props: Props) {
+/**
+ * The `TextField` is a convenience wrapper for the most common cases (80%).
+ * It cannot be all things to all people, otherwise the API would grow out of control.
+ *
+ * ## Advanced Configuration
+ *
+ * It's important to understand that the text field is a simple abstraction
+ * on top of the following components:
+ * - [FormControl](/api/form-control)
+ * - [InputLabel](/api/input-label)
+ * - [Input](/api/input)
+ * - [FormHelperText](/api/form-helper-text)
+ *
+ * If you wish to alter the properties applied to the native input, you can do as follow:
+ *
+ * ```jsx
+ * const inputProps = {
+ *   step: 300,
+ * };
+ *
+ * return <TextField id="time" type="time" inputProps={inputProps} />;
+ * ```
+ *
+ * For advanced cases, please look at the source of TextField by clicking on the
+ * "Edit this page" button above. Consider either:
+ * - using the upper case props for passing values direct to the components.
+ * - using the underlying components directly as shown in the demos.
+ */
+function TextField(props) {
   const {
     autoComplete,
     autoFocus,
+    children,
     className,
     defaultValue,
     disabled,
     error,
+    FormHelperTextProps,
+    fullWidth,
+    helperText,
+    helperTextClassName,
     id,
-    inputClassName,
-    InputClassName,
-    inputProps: inputPropsProp,
+    InputLabelProps,
+    inputProps,
     InputProps,
     inputRef,
     label,
     labelClassName,
-    InputLabelProps,
-    helperText,
-    helperTextClassName,
-    FormHelperTextProps,
-    fullWidth,
-    required,
-    type,
     multiline,
     name,
+    onChange,
     placeholder,
-    rootRef,
+    required,
     rows,
     rowsMax,
+    select,
+    SelectProps,
+    type,
     value,
     ...other
   } = props;
 
-  let inputProps = inputPropsProp;
+  warning(
+    !select || Boolean(children),
+    'Material-UI: `children` must be passed when using the `TextField` component with `select`.',
+  );
 
-  if (inputClassName) {
-    inputProps = {
-      className: inputClassName,
-      ...inputProps,
-    };
-  }
+  const helperTextId = helperText && id ? `${id}-helper-text` : undefined;
+  const InputComponent = (
+    <Input
+      autoComplete={autoComplete}
+      autoFocus={autoFocus}
+      defaultValue={defaultValue}
+      disabled={disabled}
+      fullWidth={fullWidth}
+      multiline={multiline}
+      name={name}
+      rows={rows}
+      rowsMax={rowsMax}
+      type={type}
+      value={value}
+      id={id}
+      inputRef={inputRef}
+      onChange={onChange}
+      placeholder={placeholder}
+      inputProps={inputProps}
+      {...InputProps}
+    />
+  );
 
   return (
     <FormControl
-      fullWidth={fullWidth}
-      ref={rootRef}
+      aria-describedby={helperTextId}
       className={className}
       error={error}
+      fullWidth={fullWidth}
       required={required}
       {...other}
     >
-      {label &&
+      {label && (
         <InputLabel htmlFor={id} className={labelClassName} {...InputLabelProps}>
           {label}
-        </InputLabel>}
-      <Input
-        autoComplete={autoComplete}
-        autoFocus={autoFocus}
-        className={InputClassName}
-        defaultValue={defaultValue}
-        disabled={disabled}
-        multiline={multiline}
-        name={name}
-        rows={rows}
-        rowsMax={rowsMax}
-        type={type}
-        value={value}
-        id={id}
-        inputProps={inputProps}
-        inputRef={inputRef}
-        placeholder={placeholder}
-        {...InputProps}
-      />
-      {helperText &&
-        <FormHelperText className={helperTextClassName} {...FormHelperTextProps}>
+        </InputLabel>
+      )}
+      {select ? (
+        <Select value={value} input={InputComponent} {...SelectProps}>
+          {children}
+        </Select>
+      ) : (
+        InputComponent
+      )}
+      {helperText && (
+        <FormHelperText className={helperTextClassName} id={helperTextId} {...FormHelperTextProps}>
           {helperText}
-        </FormHelperText>}
+        </FormHelperText>
+      )}
     </FormControl>
   );
 }
 
+TextField.propTypes = {
+  /**
+   * This property helps users to fill forms faster, especially on mobile devices.
+   * The name can be confusing, as it's more like an autofill.
+   * You can learn more about it here:
+   * https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill
+   */
+  autoComplete: PropTypes.string,
+  /**
+   * If `true`, the input will be focused during the first mount.
+   */
+  autoFocus: PropTypes.bool,
+  /**
+   * @ignore
+   */
+  children: PropTypes.node,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The default value of the `Input` element.
+   */
+  defaultValue: PropTypes.string,
+  /**
+   * If `true`, the input will be disabled.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, the label will be displayed in an error state.
+   */
+  error: PropTypes.bool,
+  /**
+   * Properties applied to the `FormHelperText` element.
+   */
+  FormHelperTextProps: PropTypes.object,
+  /**
+   * If `true`, the input will take up the full width of its container.
+   */
+  fullWidth: PropTypes.bool,
+  /**
+   * The helper text content.
+   */
+  helperText: PropTypes.node,
+  /**
+   * The CSS class name of the helper text element.
+   */
+  helperTextClassName: PropTypes.string,
+  /**
+   * The id of the `input` element.
+   * Use that property to make `label` and `helperText` accessible for screen readers.
+   */
+  id: PropTypes.string,
+  /**
+   * Properties applied to the `InputLabel` element.
+   */
+  InputLabelProps: PropTypes.object,
+  /**
+   * Properties applied to the `Input` element.
+   */
+  InputProps: PropTypes.object,
+  /**
+   * Properties applied to the native `input` element.
+   */
+  inputProps: PropTypes.object,
+  /**
+   * Use that property to pass a ref callback to the native input component.
+   */
+  inputRef: PropTypes.func,
+  /**
+   * The label content.
+   */
+  label: PropTypes.node,
+  /**
+   * The CSS class name of the label element.
+   */
+  labelClassName: PropTypes.string,
+  /**
+   * If `dense` or `normal`, will adjust vertical spacing of this and contained components.
+   */
+  margin: PropTypes.oneOf(['none', 'dense', 'normal']),
+  /**
+   * If `true`, a textarea element will be rendered instead of an input.
+   */
+  multiline: PropTypes.bool,
+  /**
+   * Name attribute of the `input` element.
+   */
+  name: PropTypes.string,
+  /**
+   * Callback fired when the value is changed.
+   *
+   * @param {object} event The event source of the callback
+   */
+  onChange: PropTypes.func,
+  /**
+   * The short hint displayed in the input before the user enters a value.
+   */
+  placeholder: PropTypes.string,
+  /**
+   * If `true`, the label is displayed as required.
+   */
+  required: PropTypes.bool,
+  /**
+   * Number of rows to display when multiline option is set to true.
+   */
+  rows: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /**
+   * Maximum number of rows to display when multiline option is set to true.
+   */
+  rowsMax: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  /**
+   * Render a `Select` element while passing the `Input` element to `Select` as `input` parameter.
+   * If this option is set you must pass the options of the select as children.
+   */
+  select: PropTypes.bool,
+  /**
+   * Properties applied to the `Select` element.
+   */
+  SelectProps: PropTypes.object,
+  /**
+   * Type attribute of the `Input` element. It should be a valid HTML5 input type.
+   */
+  type: PropTypes.string,
+  /**
+   * The value of the `Input` element, required for a controlled component.
+   */
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+  ]),
+};
+
 TextField.defaultProps = {
   required: false,
+  select: false,
 };
 
 export default TextField;

@@ -26,9 +26,7 @@ jobs:
           key: v1-yarn-sha-{{ checksum "yarn.lock" }}
       - run:
           name: Install js dependencies
-          command: |
-            yarn install --pure-lockfile
-            cd docs && yarn install --pure-lockfile
+          command: yarn install --frozen-lockfile
       - save_cache:
           key: v1-yarn-sha-{{ checksum "yarn.lock" }}
           paths:
@@ -48,6 +46,9 @@ jobs:
           name: Flow
           command: yarn flow
       - run:
+          name: TypeScript
+          command: yarn typescript
+      - run:
           name: Tests fake browser
           command: yarn test:coverage
       - run:
@@ -60,22 +61,32 @@ jobs:
       - run:
           name: Coverage
           command: bash <(curl -s https://codecov.io/bash)
+  test_build:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - run:
+          name: Can we generate the build?
+          command: yarn build
+      - run:
+          name: Can we build the docs?
+          command: yarn docs:build
+      - run:
+          name: Is the size acceptable?
+          command: yarn size
   test_browser:
     <<: *defaults
     steps:
       - *restore_repo
       - run:
+          name: Can we generate the api of the docs?
+          command: yarn docs:api
+      - run:
+          name: Should not have any git not staged
+          command: git diff --exit-code
+      - run:
           name: Tests real browsers
           command: yarn test:karma
-      - run:
-          name: Can we generate the build?
-          command: yarn build
-      - run:
-          name: Is the size acceptable?
-          command: yarn size
-      - run:
-          name: Can we generate the docs?
-          command: yarn docs:build
   test_regressions:
     <<: *defaults
     docker:
@@ -99,7 +110,11 @@ workflows:
       - test_browser:
           requires:
             - checkout
+      - test_build:
+          requires:
+            - checkout
       - test_regressions:
           requires:
             - test_unit
             - test_browser
+            - test_build

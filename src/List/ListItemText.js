@@ -1,14 +1,13 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     flex: '1 1 auto',
+    minWidth: 0,
     padding: '0 16px',
     '&:first-child': {
       paddingLeft: 0,
@@ -20,12 +19,19 @@ export const styles = (theme: Object) => ({
     },
   },
   dense: {
-    fontSize: 13,
+    fontSize: theme.typography.pxToRem(13),
   },
-  text: {}, // Present to allow external customization
-  textDense: {
-    fontSize: 'inherit',
+  primary: {
+    '&$textDense': {
+      fontSize: 'inherit',
+    },
   },
+  secondary: {
+    '&$textDense': {
+      fontSize: 'inherit',
+    },
+  },
+  textDense: {},
 });
 
 function ListItemText(props, context) {
@@ -33,9 +39,9 @@ function ListItemText(props, context) {
     classes,
     className: classNameProp,
     disableTypography,
+    inset,
     primary,
     secondary,
-    inset,
     ...other
   } = props;
   const { dense } = context;
@@ -51,24 +57,30 @@ function ListItemText(props, context) {
   return (
     <div className={className} {...other}>
       {primary &&
-        (disableTypography
-          ? primary
-          : <Typography
-              type="subheading"
-              className={classNames(classes.text, { [classes.textDense]: dense })}
-            >
-              {primary}
-            </Typography>)}
+        (disableTypography ? (
+          primary
+        ) : (
+          <Typography
+            type="subheading"
+            className={classNames(classes.primary, { [classes.textDense]: dense })}
+          >
+            {primary}
+          </Typography>
+        ))}
       {secondary &&
-        (disableTypography
-          ? secondary
-          : <Typography
-              color="secondary"
-              type="body1"
-              className={classNames(classes.text, { [classes.textDense]: dense })}
-            >
-              {secondary}
-            </Typography>)}
+        (disableTypography ? (
+          secondary
+        ) : (
+          <Typography
+            type="body1"
+            className={classNames(classes.secondary, {
+              [classes.textDense]: dense,
+            })}
+            color="textSecondary"
+          >
+            {secondary}
+          </Typography>
+        ))}
     </div>
   );
 }
@@ -98,9 +110,9 @@ ListItemText.propTypes = {
 
 ListItemText.defaultProps = {
   disableTypography: false,
+  inset: false,
   primary: false,
   secondary: false,
-  inset: false,
 };
 
 ListItemText.contextTypes = {

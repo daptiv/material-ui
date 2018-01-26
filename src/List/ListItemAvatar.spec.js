@@ -1,5 +1,3 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
@@ -17,11 +15,7 @@ describe('<ListItemAvatar />', () => {
       <ListItemAvatar className="foo">
         <Avatar className="bar" />
       </ListItemAvatar>,
-      {
-        context: {
-          dense: true,
-        },
-      },
+      { context: { dense: true } },
     );
   });
 
@@ -61,7 +55,7 @@ describe('<ListItemAvatar />', () => {
           },
         },
       );
-      assert.strictEqual(wrapper.name(), 'withStyles(Avatar)');
+      assert.strictEqual(wrapper.type(), Avatar);
       assert.strictEqual(consoleErrorMock.callCount(), 0);
     });
 

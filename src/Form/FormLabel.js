@@ -1,75 +1,28 @@
-// @flow
-
 import React from 'react';
-import type { Element } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 
-export const styles = (theme: Object) => {
-  const focusColor = theme.palette.primary[theme.palette.type === 'light' ? 'A700' : 'A200'];
-  return {
-    root: {
-      fontFamily: theme.typography.fontFamily,
-      color: theme.palette.input.labelText,
-      lineHeight: 1,
-    },
-    focused: {
-      color: focusColor,
-    },
-    error: {
-      color: theme.palette.error.A400,
-    },
-    disabled: {
-      color: theme.palette.input.disabled,
-    },
-  };
-};
+export const styles = theme => ({
+  root: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.text.secondary,
+    fontSize: theme.typography.pxToRem(16),
+    lineHeight: 1,
+    padding: 0,
+  },
+  focused: {
+    color: theme.palette.primary[theme.palette.type === 'light' ? 'dark' : 'light'],
+  },
+  error: {
+    color: theme.palette.error.main,
+  },
+  disabled: {
+    color: theme.palette.text.disabled,
+  },
+});
 
-type DefaultProps = {
-  classes: Object,
-  component: string,
-};
-
-export type Props = {
-  /**
-   * The content of the component.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The component used for the root node.
-   * Either a string to use a DOM element or a component.
-   */
-  component?: string | Function,
-  /**
-   * If `true`, the label should be displayed in a disabled state.
-   */
-  disabled?: boolean,
-  /**
-   * If `true`, the label should be displayed in an error state.
-   */
-  error?: boolean,
-  /**
-   * If `true`, the input of this label is focused (used by `FormGroup` components).
-   */
-  focused?: boolean,
-  /**
-   * If `true`, the label will indicate that the input is required.
-   */
-  required?: boolean,
-};
-
-type AllProps = DefaultProps & Props;
-
-function FormLabel(props: AllProps, context: { muiFormControl: Object }) {
+function FormLabel(props, context) {
   const {
     children,
     classes,
@@ -121,13 +74,50 @@ function FormLabel(props: AllProps, context: { muiFormControl: Object }) {
   return (
     <Component className={className} {...other}>
       {children}
-      {required &&
+      {required && (
         <span className={asteriskClassName} data-mui-test="FormLabelAsterisk">
           {'\u2009*'}
-        </span>}
+        </span>
+      )}
     </Component>
   );
 }
+
+FormLabel.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The component used for the root node.
+   * Either a string to use a DOM element or a component.
+   */
+  component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  /**
+   * If `true`, the label should be displayed in a disabled state.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * If `true`, the label should be displayed in an error state.
+   */
+  error: PropTypes.bool,
+  /**
+   * If `true`, the input of this label is focused (used by `FormGroup` components).
+   */
+  focused: PropTypes.bool,
+  /**
+   * If `true`, the label will indicate that the input is required.
+   */
+  required: PropTypes.bool,
+};
 
 FormLabel.defaultProps = {
   component: 'label',

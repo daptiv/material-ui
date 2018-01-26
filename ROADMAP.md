@@ -2,30 +2,28 @@
 
 The roadmap is a living document, and it is likely that priorities will change, but the list below should give some indication of our plans for the next major release, and for the future.
 
-:warning: New features based on `v0.18.x` have low priority and will most likely not be reviewed nor merged. We want to focus on bug fixes.
+## Version 1 (published on NPM under the `next` tag)
 
-## Version 1 (published on NPM under the next tag)
+Releasing stable v1 is our top priority. It's going to be huge ✨.
+We are just at the beginning, we hope to make it:
+- the **simplest** React UI library available for new Front-End developers to start with.
+- **very customizable** so highly UI demanding production applications can save time building on top of it.
 
-Version 1 release is going to be huge :sparkles:.
-We host a temporary [documentation](https://material-ui-1dab0.firebaseapp.com) for the pre-releases.
-
-Material-UI was started [3 years ago](https://github.com/callemall/material-ui/commit/28b768913b75752ecf9b6bb32766e27c241dbc46).
+Material-UI was started [3 years ago](https://github.com/mui-org/material-ui/commit/28b768913b75752ecf9b6bb32766e27c241dbc46).
 The ecosystem has evolved a lot since then, we have also learned a lot.
 [@nathanmarks](https://github.com/nathanmarks/) started an ambitious task, rebuilding Material-UI from the **ground-up**
 taking advantage of this knowledge to address long-standing issues.
 Expect various **breaking changes**.
 
-The core team is now helping him in the [v1-beta](https://github.com/callemall/material-ui/tree/v1-beta) branch.
+The core team has been dedicated to the rewrite effort for one and a half years.
 If you are interested in following our progress or if you want to help us reach that goal faster, you can have a look at the following milestones:
-- ~~[v1.0.0-beta](https://github.com/callemall/material-ui/milestone/22)~~ - complete!
-- [v1.0.0-prerelease](https://github.com/callemall/material-ui/milestone/14)
+- ~~[v1.0.0-beta](https://github.com/mui-org/material-ui/milestone/22?closed=1)~~ - reached!
+- [v1.0.0-prerelease](https://github.com/mui-org/material-ui/milestone/14)
+- [v1.0.0](https://github.com/mui-org/material-ui/milestone/23)
 
-## Q&A with the v1-beta branch
+## Q&A with the v1 version
 
-The `v1-beta` branch has become more mature.
-We think that it's a good time to communicate more on this effort.
-We have a lot of people opening PRs and getting them closed, this is not a good thing.
-This Q&A tries to answer some of your questions.
+The v1-beta version has matured, so we think that it's time to communicate more on this effort. The following Q&A is an attempt at answering some of your questions.
 
 ### Summarizing, what are our main problems with CSS?
 
@@ -48,64 +46,32 @@ That was also an issue for users wanting to use a single component without payin
 
 We later came up with an **inline-style approach** solving the majority of our issues.
 But:
-- We had lost around 25% of the performance :turtle:.
+- We had lost around 25% of the performance 🐢.
 Computing the inline-style at each render with no caching isn't really efficient.
-- Some more advanced CSS feature wasn't available, e.g. keyframes, pseudo-elements, pseudo-classes :nail_care:.
-- Media queries aren't available on the server. At least [not yet](http://caniuse.com/#feat=client-hints-dpr-width-viewport).
-- The debugging was really challenging. Browser dev tools aren't tuned for inline-styles.
-- React v15 has changed the method of injecting styles into the DOM meaning, for example, that prefixing all browsers for `display:flex` is no longer possible :boom:.
+- Some more advanced CSS feature weren't available, e.g. keyframes, pseudo-elements, pseudo-classes 💅.
+- Media queries weren't available on the server. At least [not yet](http://caniuse.com/#feat=client-hints-dpr-width-viewport).
+- Debugging was really challenging. Browser dev tools aren't tuned for inline-styles.
+- React v15 has changed the method of injecting styles into the DOM meaning, for example, that prefixing all browsers for `display:flex` is no longer possible 💥.
 
 ### Does JSS solve them?
 
 Yes, it does. You can have a look at [this presentation](https://github.com/oliviertassinari/a-journey-toward-better-style) for more details.
 
-## What does it mean to migrate a component? Should we discuss each one of them first?
+### When do we intend to release stable v1?
 
-Migrating a component to the `v1-beta` branch isn't just a style migration.
-We think that it's our best opportunity to clear the API and improve the implementation of the components.
-@nathanmarks ended up fixing a lot of long standing issues in the process.
+We don't have an ETA for the release of the `v1`, however, we are going to try to follow this plan and hope for a Q1-Q2 2018 release:
 
-Yes, it would much better to discuss an action plan for each of them.
-That would save us quite some time following a wrong path.
-We should answer the following questions:
-- What will the API look like?
-- What tradeoffs are we going to make?
-- What features will be implemented?
-
-That conversation could start on one of the following [issues](https://github.com/callemall/material-ui/issues?q=is%3Aissue+is%3Aopen+label%3ARefactoring+label%3Anext).
-
-### How do I know if a component still needs to be migrated `v1-beta`?
-
-We have [Github project](https://github.com/callemall/material-ui/projects/1) to **coordinate** the work toward the `v1-beta` release.
-You can check the *Component to migrate* column to know the ones needing to be migrated to `v1-beta`.
-
-### How do I start migrating components to the `v1-beta` branch?
-
-Once we agree on the migration plan you're gonna have to get your hands dirty.
-That's really up to you. At least, you gonna have to
-- clone the `v1-beta` branch
-- install the npm dependencies
-- play with the documentation site
-- write some documentation
-- write some tests (unit, integration, visual)
-
-### When do we intend to release `v1-beta`?
-
-We don't have an ETA for the release of the `v1-beta` branch,
-however, we are going to try to follow this plan:
-
-1. We completely address the styling issue before moving from *alpha* to [*beta*](https://github.com/callemall/material-ui/milestone/22).
-2. We publish our first beta releases.
-3. We fix the last API inconsistencies (as we can make breaking changes without having to worry much).
-4. We merge the beta branch into master
+1. ~~We completely address the styling issue before moving from *alpha* to [*beta*](https://github.com/mui-org/material-ui/milestone/22).~~
+2. ~~We publish our first beta releases.~~
+3. We merge the v1-beta branch into master
 5. We publish our first pre-releases, if all goes well, we move to the next step.
-6. We publish v1 :tada:
+6. We publish v1 🎉
 
-At that point, some features and components from the v0.x will be missing in the v1.
+At that point, some features and components from Material-UI v0.x will be missing in the v1.
 So, what about them?
 - First, both versions can be used at the same time, people can progressively migrate, one component at the time.
 - Then, **with the help of the community** and over time, we will support more and more components.
-- We would rather **support few use-cases very well and allow people to build on top of it** than many poorly.
+- We would rather **support few use-cases very well** and allow people to build on top of it **than many poorly**.
 
 ### Have we ever considered using the best libraries for each piece of functionality and provide only a wrapper for the UI?
 
@@ -114,12 +80,17 @@ For UI related things, providing a wrapper for the functionality is often the wr
 We think that it should be done the other way around, i.e. providing a low-level API that can be combined with third-party libraries, e.g.:
  - [react-virtualized](https://github.com/bvaughn/react-virtualized)
  - [react-swipeable-views](https://github.com/oliviertassinari/react-swipeable-views)
+ - [react-autosuggest](https://github.com/moroshko/react-autosuggest)
+ - [react-popper](https://github.com/souporserious/react-popper)
+ - [downshift](https://github.com/paypal/downshift)
  - [react-dnd](https://github.com/gaearon/react-dnd)
 
 On the other hand, using a smart date library for the DatePicker / TimePicker would probably be much better as date management is tricky and not a core business.
 
-## Future
+## After stable v1
 
-- [[#2863](https://github.com/callemall/material-ui/issues/2863)] Add missing components, and missing features from current ones.
-- [[#593](https://github.com/callemall/material-ui/issues/593)] Full support for react-native.
-- Add example on how to use [react-virtualized](https://github.com/bvaughn/react-virtualized) / [react-list](https://github.com/orgsync/react-list) for lists, menu items and table.
+- **Theming**. We will invest in the theming solution. We would love to see **non Material Design UI** built with Material-UI. [@oliviertassinari](https://github.com/oliviertassinari/) is working on a proof of concept.
+- **Type checking**. We need to improve TypeScript and Flow coverage of the library.
+- **Bundle size**. We need the library to be as small as possible. We already monitor the bundle size with size-limit. We need to think of the solutions. For instance, supporting preact can help.
+- **Performance**. We can't optimize something we can't measure. We don't have any CI performance benchmark. We will need to build one and start investigating bottlenecks.
+- **Learning materials**. The documentation is equally as important as the quality of the implementation. We could be authoring a [learning tutorial](https://learnnextjs.com/) like Next.js is doing, or some [egghead.io](https://egghead.io/) courses.

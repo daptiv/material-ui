@@ -1,5 +1,3 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
@@ -7,6 +5,7 @@ import ListItemText from './ListItemText';
 import ListItemSecondaryAction from './ListItemSecondaryAction';
 import ListItem from './ListItem';
 import ListItemAvatar from './ListItemAvatar';
+import Avatar from '../Avatar';
 
 describe('<ListItem />', () => {
   let shallow;
@@ -47,7 +46,9 @@ describe('<ListItem />', () => {
   it('should use dense class when ListItemAvatar is present', () => {
     const wrapper = shallow(
       <ListItem>
-        <ListItemAvatar />
+        <ListItemAvatar>
+          <Avatar />
+        </ListItemAvatar>
       </ListItem>,
       {
         context: {
@@ -82,9 +83,7 @@ describe('<ListItem />', () => {
         'dense should be false by default',
       );
 
-      wrapper.setProps({
-        dense: true,
-      });
+      wrapper.setProps({ dense: true });
       assert.strictEqual(
         wrapper.instance().getChildContext().dense,
         true,

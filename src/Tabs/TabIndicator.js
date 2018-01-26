@@ -1,24 +1,23 @@
-// @flow weak
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { capitalizeFirstLetter } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
-    position: 'relative',
+    position: 'absolute',
     height: 2,
-    marginTop: -2,
+    bottom: 0,
+    width: '100%',
     transition: theme.transitions.create(),
     willChange: 'left, width',
   },
-  colorAccent: {
-    backgroundColor: theme.palette.accent.A200,
-  },
   colorPrimary: {
-    backgroundColor: theme.palette.primary[500],
+    backgroundColor: theme.palette.primary.main,
+  },
+  colorSecondary: {
+    backgroundColor: theme.palette.secondary.main,
   },
 });
 
@@ -27,11 +26,11 @@ export const styles = (theme: Object) => ({
  */
 function TabIndicator(props) {
   const { classes, className: classNameProp, color, style: styleProp } = props;
-  const colorPredefined = ['primary', 'accent'].indexOf(color) !== -1;
+  const colorPredefined = ['primary', 'secondary'].indexOf(color) !== -1;
   const className = classNames(
     classes.root,
     {
-      [classes[`color${capitalizeFirstLetter(color)}`]]: colorPredefined,
+      [classes[`color${capitalize(color)}`]]: colorPredefined,
     },
     classNameProp,
   );
@@ -43,7 +42,7 @@ function TabIndicator(props) {
         backgroundColor: color,
       };
 
-  return <div className={className} style={style} />;
+  return <span className={className} style={style} />;
 }
 
 TabIndicator.propTypes = {
@@ -59,15 +58,12 @@ TabIndicator.propTypes = {
    * @ignore
    * The color of the tab indicator.
    */
-  color: PropTypes.oneOfType([PropTypes.oneOf(['accent', 'primary']), PropTypes.string]).isRequired,
+  color: PropTypes.oneOfType([PropTypes.string, PropTypes.oneOf(['primary', 'secondary'])]),
   /**
    * @ignore
    * The style of the root element.
    */
-  style: PropTypes.shape({
-    left: PropTypes.number,
-    width: PropTypes.number,
-  }).isRequired,
+  style: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiTabIndicator' })(TabIndicator);

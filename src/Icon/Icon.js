@@ -1,69 +1,43 @@
-// @flow
-
 import React from 'react';
-import type { Element } from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
-import { capitalizeFirstLetter } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     userSelect: 'none',
   },
-  colorAccent: {
-    color: theme.palette.accent.A200,
+  colorPrimary: {
+    color: theme.palette.primary.main,
+  },
+  colorSecondary: {
+    color: theme.palette.secondary.main,
   },
   colorAction: {
     color: theme.palette.action.active,
-  },
-  colorContrast: {
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
   },
   colorDisabled: {
     color: theme.palette.action.disabled,
   },
   colorError: {
-    color: theme.palette.error[500],
+    color: theme.palette.error.main,
   },
-  colorPrimary: {
-    color: theme.palette.primary[500],
+  fontSize: {
+    width: '1em',
+    height: '1em',
   },
 });
 
-type DefaultProps = {
-  classes: Object,
-  color: 'inherit',
-};
-
-export type Props = {
-  /**
-   * The name of the icon font ligature.
-   */
-  children?: Element<*>,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * The color of the component. It's using the theme palette when that makes sense.
-   */
-  color?: 'inherit' | 'accent' | 'action' | 'contrast' | 'disabled' | 'error' | 'primary',
-};
-
-type AllProps = DefaultProps & Props;
-
-function Icon(props: AllProps) {
-  const { children, classes, className: classNameProp, color, ...other } = props;
+function Icon(props) {
+  const { children, classes, className: classNameProp, color, fontSize, ...other } = props;
 
   const className = classNames(
     'material-icons',
     classes.root,
     {
-      [classes[`color${capitalizeFirstLetter(color)}`]]: color !== 'inherit',
+      [classes[`color${capitalize(color)}`]]: color !== 'inherit',
+      [classes.fontSize]: fontSize,
     },
     classNameProp,
   );
@@ -75,8 +49,32 @@ function Icon(props: AllProps) {
   );
 }
 
+Icon.propTypes = {
+  /**
+   * The name of the icon font ligature.
+   */
+  children: PropTypes.node,
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * The color of the component. It's using the theme palette when that makes sense.
+   */
+  color: PropTypes.oneOf(['inherit', 'secondary', 'action', 'disabled', 'error', 'primary']),
+  /**
+   * If `true`, the icon size will be determined by the font-size.
+   */
+  fontSize: PropTypes.bool,
+};
+
 Icon.defaultProps = {
   color: 'inherit',
+  fontSize: false,
 };
 
 Icon.muiName = 'Icon';

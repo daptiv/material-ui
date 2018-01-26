@@ -1,59 +1,45 @@
-// @flow weak
+// @inheritedComponent ButtonBase
 
-import React, { Children, cloneElement } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import ButtonBase from '../ButtonBase';
-import { capitalizeFirstLetter } from '../utils/helpers';
-import Icon from '../Icon';
-import { isMuiComponent } from '../utils/reactHelpers';
+import { capitalize } from '../utils/helpers';
+import { isMuiElement } from '../utils/reactHelpers';
+import '../SvgIcon'; // Ensure CSS specificity
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     textAlign: 'center',
     flex: '0 0 auto',
-    fontSize: 24,
+    fontSize: theme.typography.pxToRem(24),
     width: theme.spacing.unit * 6,
     height: theme.spacing.unit * 6,
     padding: 0,
     borderRadius: '50%',
-    backgroundColor: 'transparent',
     color: theme.palette.action.active,
     transition: theme.transitions.create('background-color', {
       duration: theme.transitions.duration.shortest,
     }),
   },
-  disabled: {
-    color: theme.palette.action.disabled,
-  },
-  colorAccent: {
-    color: theme.palette.accent.A200,
-  },
-  colorContrast: {
-    color: theme.palette.getContrastText(theme.palette.primary[500]),
-  },
-  colorPrimary: {
-    color: theme.palette.primary[500],
-  },
   colorInherit: {
     color: 'inherit',
+  },
+  colorPrimary: {
+    color: theme.palette.primary.main,
+  },
+  colorSecondary: {
+    color: theme.palette.secondary.main,
+  },
+  disabled: {
+    color: theme.palette.action.disabled,
   },
   label: {
     width: '100%',
     display: 'flex',
     alignItems: 'inherit',
     justifyContent: 'inherit',
-  },
-  icon: {
-    width: '1em',
-    height: '1em',
-  },
-  keyboardFocused: {
-    backgroundColor: theme.palette.text.divider,
   },
 });
 
@@ -62,38 +48,30 @@ export const styles = (theme: Object) => ({
  * regarding the available icon options.
  */
 function IconButton(props) {
-  const { children, classes, className, color, disabled, rootRef, ...other } = props;
+  const { children, classes, className, color, disabled, ...other } = props;
 
   return (
     <ButtonBase
       className={classNames(
         classes.root,
         {
-          [classes[`color${capitalizeFirstLetter(color)}`]]: color !== 'default',
+          [classes[`color${capitalize(color)}`]]: color !== 'default',
           [classes.disabled]: disabled,
         },
         className,
       )}
       centerRipple
-      keyboardFocusedClassName={classes.keyboardFocused}
+      focusRipple
       disabled={disabled}
-      ref={rootRef}
       {...other}
     >
       <span className={classes.label}>
-        {typeof children === 'string'
-          ? <Icon className={classes.icon}>
-              {children}
-            </Icon>
-          : Children.map(children, child => {
-              if (isMuiComponent(child, 'Icon')) {
-                return cloneElement(child, {
-                  className: classNames(classes.icon, child.props.className),
-                });
-              }
-
-              return child;
-            })}
+        {React.Children.map(children, child => {
+          if (isMuiElement(child, ['Icon', 'SvgIcon'])) {
+            return React.cloneElement(child, { fontSize: true });
+          }
+          return child;
+        })}
       </span>
     </ButtonBase>
   );
@@ -102,7 +80,6 @@ function IconButton(props) {
 IconButton.propTypes = {
   /**
    * The icon element.
-   * If a string is provided, it will be used as an icon font ligature.
    */
   children: PropTypes.node,
   /**
@@ -116,7 +93,7 @@ IconButton.propTypes = {
   /**
    * The color of the component. It's using the theme palette when that makes sense.
    */
-  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'contrast', 'accent']),
+  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
   /**
    * If `true`, the button will be disabled.
    */
@@ -125,10 +102,6 @@ IconButton.propTypes = {
    * If `true`, the ripple will be disabled.
    */
   disableRipple: PropTypes.bool,
-  /**
-   * Use that property to pass a ref callback to the root component.
-   */
-  rootRef: PropTypes.func,
 };
 
 IconButton.defaultProps = {

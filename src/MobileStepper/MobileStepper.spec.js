@@ -1,11 +1,10 @@
-// @flow
-
 import React from 'react';
 import { assert } from 'chai';
 import { createShallow, getClasses } from '../test-utils';
+import KeyboardArrowLeft from '../internal/svg-icons/KeyboardArrowLeft';
+import KeyboardArrowRight from '../internal/svg-icons/KeyboardArrowRight';
+import Paper from '../Paper';
 import Button from '../Button/Button';
-import KeyboardArrowLeft from '../svg-icons/keyboard-arrow-left';
-import KeyboardArrowRight from '../svg-icons/keyboard-arrow-right';
 import { LinearProgress } from '../Progress';
 import MobileStepper from './MobileStepper';
 
@@ -14,8 +13,18 @@ describe('<MobileStepper />', () => {
   let classes;
   const defaultProps = {
     steps: 2,
-    onBack: () => {},
-    onNext: () => {},
+    nextButton: (
+      <Button>
+        Next
+        <KeyboardArrowRight />
+      </Button>
+    ),
+    backButton: (
+      <Button>
+        <KeyboardArrowLeft />
+        Back
+      </Button>
+    ),
   };
 
   before(() => {
@@ -25,7 +34,7 @@ describe('<MobileStepper />', () => {
 
   it('should render a Paper component', () => {
     const wrapper = shallow(<MobileStepper {...defaultProps} />);
-    assert.strictEqual(wrapper.name(), 'withStyles(Paper)');
+    assert.strictEqual(wrapper.type(), Paper);
     assert.strictEqual(wrapper.props().elevation, 0, 'should have no elevation');
   });
 
@@ -77,32 +86,68 @@ describe('<MobileStepper />', () => {
     );
   });
 
-  it('should set the backButtonText', () => {
-    const wrapper = shallow(<MobileStepper backButtonText="Past" {...defaultProps} />);
+  it('should render backButton custom text', () => {
+    const props = {
+      steps: defaultProps.steps,
+      nextButton: defaultProps.nextButton,
+      backButton: (
+        <Button>
+          <KeyboardArrowLeft />
+          Past
+        </Button>
+      ),
+    };
+    const wrapper = shallow(<MobileStepper {...props} />);
     assert.strictEqual(
-      wrapper.childAt(0).childAt(1).text(),
+      wrapper
+        .childAt(0)
+        .childAt(1)
+        .text(),
       'Past',
       'should set the back button text',
     );
   });
 
-  it('should set the nextButtonText', () => {
-    const wrapper = shallow(<MobileStepper nextButtonText="Future" {...defaultProps} />);
+  it('should render nextButton custom text', () => {
+    const props = {
+      steps: defaultProps.steps,
+      nextButton: (
+        <Button>
+          Future
+          <KeyboardArrowRight />
+        </Button>
+      ),
+      backButton: defaultProps.backButton,
+    };
+    const wrapper = shallow(<MobileStepper {...props} />);
     assert.strictEqual(
-      wrapper.childAt(2).childAt(0).text(),
+      wrapper
+        .childAt(2)
+        .childAt(0)
+        .text(),
       'Future',
       'should set the back button text',
     );
   });
 
-  it('should disable the back button if prop disableBack is passed', () => {
-    const wrapper = shallow(<MobileStepper disableBack {...defaultProps} />);
+  it('should render disabled backButton', () => {
+    const props = {
+      steps: defaultProps.steps,
+      nextButton: defaultProps.nextButton,
+      backButton: <Button disabled>back</Button>,
+    };
+    const wrapper = shallow(<MobileStepper {...props} />);
     const backButton = wrapper.childAt(0);
     assert.strictEqual(backButton.props().disabled, true, 'should disable the back button');
   });
 
-  it('should disable the next button if prop disableNext is passed', () => {
-    const wrapper = shallow(<MobileStepper disableNext {...defaultProps} />);
+  it('should render disabled nextButton', () => {
+    const props = {
+      steps: defaultProps.steps,
+      nextButton: <Button disabled>back</Button>,
+      backButton: defaultProps.backButton,
+    };
+    const wrapper = shallow(<MobileStepper {...props} />);
     const nextButton = wrapper.childAt(2);
     assert.strictEqual(nextButton.props().disabled, true, 'should disable the next button');
   });
@@ -130,7 +175,10 @@ describe('<MobileStepper />', () => {
   it('should render the first dot as active if activeStep is not set', () => {
     const wrapper = shallow(<MobileStepper type="dots" {...defaultProps} />);
     assert.strictEqual(
-      wrapper.childAt(1).childAt(0).hasClass(classes.dotActive),
+      wrapper
+        .childAt(1)
+        .childAt(0)
+        .hasClass(classes.dotActive),
       true,
       'should render the first dot active',
     );
@@ -139,7 +187,10 @@ describe('<MobileStepper />', () => {
   it('should honor the activeStep prop', () => {
     const wrapper = shallow(<MobileStepper type="dots" activeStep={1} {...defaultProps} />);
     assert.strictEqual(
-      wrapper.childAt(1).childAt(1).hasClass(classes.dotActive),
+      wrapper
+        .childAt(1)
+        .childAt(1)
+        .hasClass(classes.dotActive),
       true,
       'should render the second dot active',
     );
@@ -151,10 +202,7 @@ describe('<MobileStepper />', () => {
   });
 
   it('should calculate the <LinearProgress /> value correctly', () => {
-    const props = {
-      onBack: defaultProps.onBack,
-      onNext: defaultProps.onNext,
-    };
+    const props = { backButton: defaultProps.backButton, nextButton: defaultProps.nextButton };
     let wrapper = shallow(<MobileStepper type="progress" steps={3} {...props} />);
     let linearProgressProps = wrapper.find(LinearProgress).props();
     assert.strictEqual(linearProgressProps.value, 0, 'should set <LinearProgress /> value to 0');

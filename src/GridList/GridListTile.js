@@ -1,6 +1,4 @@
-// @flow weak
-
-import React, { Component, Children, cloneElement } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import EventListener from 'react-event-listener';
@@ -10,6 +8,7 @@ import withStyles from '../styles/withStyles';
 export const styles = {
   root: {
     boxSizing: 'border-box',
+    flexShrink: 0,
   },
   tile: {
     position: 'relative',
@@ -31,13 +30,7 @@ export const styles = {
   },
 };
 
-class GridListTile extends Component {
-  static defaultProps = {
-    cols: 1,
-    rows: 1,
-    component: 'li',
-  };
-
+class GridListTile extends React.Component {
   componentDidMount() {
     this.ensureImageCover();
   }
@@ -71,11 +64,11 @@ class GridListTile extends Component {
       imgElement.width / imgElement.height >
       imgElement.parentNode.offsetWidth / imgElement.parentNode.offsetHeight
     ) {
-      imgElement.classList.remove(this.props.classes.imgFullWidth);
-      imgElement.classList.add(this.props.classes.imgFullHeight);
+      imgElement.classList.remove(...this.props.classes.imgFullWidth.split(' '));
+      imgElement.classList.add(...this.props.classes.imgFullHeight.split(' '));
     } else {
-      imgElement.classList.remove(this.props.classes.imgFullHeight);
-      imgElement.classList.add(this.props.classes.imgFullWidth);
+      imgElement.classList.remove(...this.props.classes.imgFullHeight.split(' '));
+      imgElement.classList.add(...this.props.classes.imgFullWidth.split(' '));
     }
 
     imgElement.removeEventListener('load', this.fit);
@@ -94,23 +87,15 @@ class GridListTile extends Component {
   }
 
   render() {
-    const {
-      children,
-      classes,
-      className,
-      cols,
-      component: ComponentProp,
-      rows,
-      ...other
-    } = this.props;
+    const { children, classes, className, cols, component: Component, rows, ...other } = this.props;
 
     return (
-      <ComponentProp className={classNames(classes.root, className)} {...other}>
+      <Component className={classNames(classes.root, className)} {...other}>
         <EventListener target="window" onResize={this.handleResize} />
         <div className={classes.tile}>
-          {Children.map(children, child => {
+          {React.Children.map(children, child => {
             if (child.type === 'img') {
-              return cloneElement(child, {
+              return React.cloneElement(child, {
                 key: 'img',
                 ref: node => {
                   this.imgElement = node;
@@ -121,7 +106,7 @@ class GridListTile extends Component {
             return child;
           })}
         </div>
-      </ComponentProp>
+      </Component>
     );
   }
 }
@@ -154,6 +139,12 @@ GridListTile.propTypes = {
    * Height of the tile in number of grid cells.
    */
   rows: PropTypes.number,
+};
+
+GridListTile.defaultProps = {
+  cols: 1,
+  component: 'li',
+  rows: 1,
 };
 
 export default withStyles(styles, { name: 'MuiGridListTile' })(GridListTile);

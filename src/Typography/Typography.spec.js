@@ -11,7 +11,7 @@ describe('<Typography />', () => {
 
   before(() => {
     shallow = createShallow({ dive: true });
-    classes = getClasses(<Typography />);
+    classes = getClasses(<Typography>Hello</Typography>);
   });
 
   it('should render the text', () => {
@@ -61,6 +61,20 @@ describe('<Typography />', () => {
       const wrapper = shallow(<Typography type={type}>Hello</Typography>);
       assert.ok(classes[type] !== undefined);
       assert.strictEqual(wrapper.hasClass(classes[type]), true, `should be ${type} text`);
+    });
+  });
+
+  [
+    ['primary', 'colorPrimary'],
+    ['textSecondary', 'colorTextSecondary'],
+    ['secondary', 'colorSecondary'],
+    ['inherit', 'colorInherit'],
+    ['error', 'colorError'],
+  ].forEach(([color, className]) => {
+    it(`should render ${color} color`, () => {
+      const wrapper = shallow(<Typography color={(color: any)}>Hello</Typography>);
+      assert.ok(classes[className] !== undefined);
+      assert.strictEqual(wrapper.hasClass(classes[className]), true, `should be ${color} text`);
     });
   });
 

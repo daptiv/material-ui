@@ -1,30 +1,14 @@
-/* eslint-disable flowtype/require-valid-file-annotation */
-
 import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
-import { getContext } from '../styles/context';
+import JssProvider from 'react-jss/lib/JssProvider';
+import getPageContext from '../src/getPageContext';
 
-export default class MyDocument extends Document {
-  static getInitialProps(ctx) {
-    const page = ctx.renderPage();
-    // Get the context with the collected side effects.
-    const context = getContext();
-    return {
-      ...page,
-      styles: (
-        <style
-          id="jss-server-side"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: context.sheetsRegistry.toString() }}
-        />
-      ),
-    };
-  }
-
+class MyDocument extends Document {
   render() {
-    const context = getContext();
+    const { pageContext } = this.props;
+
     return (
-      <html lang="en">
+      <html lang="en" dir="ltr">
         <Head>
           <title>My page</title>
           <meta charSet="utf-8" />
@@ -36,13 +20,8 @@ export default class MyDocument extends Document {
               'minimum-scale=1, width=device-width, height=device-height'
             }
           />
-          {/*
-            manifest.json provides metadata used when your web app is added to the
-            homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-          */}
-          <link rel="manifest" href="/static/manifest.json" />
           {/* PWA primary color */}
-          <meta name="theme-color" content={context.theme.palette.primary[500]} />
+          <meta name="theme-color" content={pageContext.theme.palette.primary[500]} />
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
@@ -56,3 +35,47 @@ export default class MyDocument extends Document {
     );
   }
 }
+
+MyDocument.getInitialProps = ctx => {
+  // Resolution order
+  //
+  // On the server:
+  // 1. page.getInitialProps
+  // 2. document.getInitialProps
+  // 3. page.render
+  // 4. document.render
+  //
+  // On the server with error:
+  // 2. document.getInitialProps
+  // 3. page.render
+  // 4. document.render
+  //
+  // On the client
+  // 1. page.getInitialProps
+  // 3. page.render
+
+  // Get the context of the page to collected side effects.
+  const pageContext = getPageContext();
+  const page = ctx.renderPage(Component => props => (
+    <JssProvider
+      registry={pageContext.sheetsRegistry}
+      generateClassName={pageContext.generateClassName}
+    >
+      <Component pageContext={pageContext} {...props} />
+    </JssProvider>
+  ));
+
+  return {
+    ...page,
+    pageContext,
+    styles: (
+      <style
+        id="jss-server-side"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: pageContext.sheetsRegistry.toString() }}
+      />
+    ),
+  };
+};
+
+export default MyDocument;

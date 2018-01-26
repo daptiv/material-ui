@@ -1,92 +1,41 @@
-// @flow
 /* eslint-disable jsx-a11y/label-has-for */
 
-import React, { cloneElement } from 'react';
-import type { Element } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
 import Typography from '../Typography';
 
-export const styles = (theme: Object) => ({
+export const styles = theme => ({
   root: {
     display: 'inline-flex',
     alignItems: 'center',
     cursor: 'pointer',
+    // For correct alignment with the text.
+    verticalAlign: 'middle',
     // Remove grey highlight
-    WebkitTapHighlightColor: theme.palette.common.transparent,
+    WebkitTapHighlightColor: 'transparent',
+    marginLeft: -14,
+    marginRight: theme.spacing.unit * 2, // used for row presentation of radio/checkbox
   },
   disabled: {
     color: theme.palette.text.disabled,
     cursor: 'default',
   },
-  hasLabel: {
-    marginLeft: -12,
-    marginRight: theme.spacing.unit * 2, // used for row presentation of radio/checkbox
-  },
-  label: {
-    userSelect: 'none',
-  },
+  label: {},
 });
 
-type DefaultProps = {
-  classes: Object,
-};
-
-export type Props = {
-  /**
-   * If `true`, the component appears selected.
-   */
-  checked?: boolean | string,
-  /**
-   * Useful to extend the style applied to components.
-   */
-  classes?: Object,
-  /**
-   * @ignore
-   */
-  className?: string,
-  /**
-   * A control element. For instance, it can be be a `Radio`, a `Switch` or a `Checkbox`.
-   */
-  control: Element<*>,
-  /**
-   * If `true`, the control will be disabled.
-   */
-  disabled?: boolean,
-  /**
-   * Use that property to pass a ref callback to the native input component.
-   */
-  inputRef?: Function,
-  /**
-   * The text to be used in an enclosing label element.
-   */
-  label: string,
-  /*
-   * @ignore
-   */
-  name?: string,
-  /**
-   * Callback fired when the state is changed.
-   *
-   * @param {object} event The event source of the callback
-   * @param {boolean} checked The `checked` value of the switch
-   */
-  onChange?: Function,
-  /**
-   * The value of the component.
-   */
-  value?: string,
-};
-
-type AllProps = DefaultProps & Props;
-
-function FormControlLabel(props: AllProps) {
+/**
+ * Drop in replacement of the `Radio`, `Switch` and `Checkbox` component.
+ * Use this component if you want to display an extra label.
+ */
+function FormControlLabel(props, context) {
   const {
     checked,
     classes,
     className: classNameProp,
     control,
-    disabled,
+    disabled: disabledProp,
     inputRef,
     label,
     name,
@@ -95,10 +44,24 @@ function FormControlLabel(props: AllProps) {
     ...other
   } = props;
 
+  const { muiFormControl } = context;
+  let disabled = disabledProp;
+
+  if (typeof control.props.disabled !== 'undefined') {
+    if (typeof disabled === 'undefined') {
+      disabled = control.props.disabled;
+    }
+  }
+
+  if (muiFormControl) {
+    if (typeof disabled === 'undefined') {
+      disabled = muiFormControl.disabled;
+    }
+  }
+
   const className = classNames(
     classes.root,
     {
-      [classes.hasLabel]: label && label.length,
       [classes.disabled]: disabled,
     },
     classNameProp,
@@ -106,23 +69,69 @@ function FormControlLabel(props: AllProps) {
 
   return (
     <label className={className} {...other}>
-      {cloneElement(control, {
-        disabled: typeof control.props.disabled === 'undefined' ? disabled : control.props.disabled,
+      {React.cloneElement(control, {
+        disabled,
         checked: typeof control.props.checked === 'undefined' ? checked : control.props.checked,
         name: control.props.name || name,
         onChange: control.props.onChange || onChange,
         value: control.props.value || value,
         inputRef: control.props.inputRef || inputRef,
       })}
-      <Typography className={classes.label}>
+      <Typography component="span" className={classes.label}>
         {label}
       </Typography>
     </label>
   );
 }
 
-FormControlLabel.defaultProps = {
-  disabled: false,
+FormControlLabel.propTypes = {
+  /**
+   * If `true`, the component appears selected.
+   */
+  checked: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
+  /**
+   * Useful to extend the style applied to components.
+   */
+  classes: PropTypes.object.isRequired,
+  /**
+   * @ignore
+   */
+  className: PropTypes.string,
+  /**
+   * A control element. For instance, it can be be a `Radio`, a `Switch` or a `Checkbox`.
+   */
+  control: PropTypes.element,
+  /**
+   * If `true`, the control will be disabled.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * Use that property to pass a ref callback to the native input component.
+   */
+  inputRef: PropTypes.func,
+  /**
+   * The text to be used in an enclosing label element.
+   */
+  label: PropTypes.node,
+  /*
+   * @ignore
+   */
+  name: PropTypes.string,
+  /**
+   * Callback fired when the state is changed.
+   *
+   * @param {object} event The event source of the callback
+   * @param {boolean} checked The `checked` value of the switch
+   */
+  onChange: PropTypes.func,
+  /**
+   * The value of the component.
+   */
+  value: PropTypes.string,
+};
+
+FormControlLabel.contextTypes = {
+  muiFormControl: PropTypes.object,
 };
 
 export default withStyles(styles, { name: 'MuiFormControlLabel' })(FormControlLabel);

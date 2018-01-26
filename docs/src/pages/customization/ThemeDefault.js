@@ -1,30 +1,87 @@
-// @flow weak
-
 import React from 'react';
+import url from 'url';
 import PropTypes from 'prop-types';
-import MarkdownElement from 'docs/src/components/MarkdownElement';
-import { withTheme } from 'material-ui/styles';
+import Inspector from 'react-inspector';
+import { withStyles, withTheme, createMuiTheme } from 'material-ui/styles';
+import { FormControlLabel } from 'material-ui/Form';
+import Switch from 'material-ui/Switch';
 
-const style = {
-  maxWidth: '100%',
-  maxHeight: 400,
-  overflow: 'auto',
-};
+const styles = theme => ({
+  root: {
+    padding: theme.spacing.unit * 2,
+    paddingTop: 0,
+    // Match <Inspector /> default theme.
+    backgroundColor: theme.palette.type === 'light' ? theme.palette.common.white : '#242424',
+    minHeight: theme.spacing.unit * 40,
+    width: '100%',
+  },
+  switch: {
+    paddingBottom: theme.spacing.unit,
+  },
+});
 
-function ThemeDefault(props) {
-  const { theme: { id, ...theme } } = props;
+class ThemeDefault extends React.Component {
+  state = {
+    checked: false,
+    expandPaths: null,
+  };
 
-  const text = `
-\`\`\`js
-${JSON.stringify(theme, null, 2)}
-\`\`\`
-  `;
+  componentDidMount() {
+    const URL = url.parse(document.location.href, true);
+    const expandPath = URL.query['expend-path'];
 
-  return <MarkdownElement style={style} text={text} />;
+    if (!expandPath) {
+      return;
+    }
+
+    // eslint-disable-next-line react/no-did-mount-set-state
+    this.setState({
+      expandPaths: expandPath.split('.').reduce((acc, path) => {
+        const last = acc.length > 0 ? `${acc[acc.length - 1]}.` : '';
+        acc.push(last + path);
+        return acc;
+      }, []),
+    });
+  }
+
+  render() {
+    const { classes, theme: docsTheme } = this.props;
+    const { checked, expandPaths } = this.state;
+
+    const theme = createMuiTheme({
+      palette: {
+        type: docsTheme.palette.type,
+      },
+      direction: docsTheme.direction,
+    });
+
+    return (
+      <div className={classes.root}>
+        <FormControlLabel
+          className={classes.switch}
+          control={
+            <Switch
+              checked={checked}
+              onChange={(event, value) => this.setState({ checked: value })}
+            />
+          }
+          label="Expand all"
+        />
+        <Inspector
+          theme={theme.palette.type === 'light' ? 'chromeLight' : 'chromeDark'}
+          data={theme}
+          expandPaths={expandPaths}
+          expandLevel={checked ? 100 : 1}
+          key={`${checked}-${theme.palette.type}`} // Remount
+        />
+      </div>
+    );
+  }
 }
 
 ThemeDefault.propTypes = {
+  classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
 };
 
-export default withTheme(ThemeDefault);
+export default withStyles(styles)(withTheme()(ThemeDefault));

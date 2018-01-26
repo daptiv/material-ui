@@ -1,6 +1,5 @@
-// @flow
-
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import Button from 'material-ui/Button';
 import Dialog, {
   DialogTitle,
@@ -9,21 +8,22 @@ import Dialog, {
   DialogActions,
 } from 'material-ui/Dialog';
 import Typography from 'material-ui/Typography';
-import withRoot from '../components/withRoot';
+import { withStyles } from 'material-ui/styles';
+import withRoot from '../src/withRoot';
 
-const styles = {
-  container: {
+const styles = theme => ({
+  root: {
     textAlign: 'center',
-    paddingTop: 200,
+    paddingTop: theme.spacing.unit * 20,
   },
-};
+});
 
-class Index extends Component {
+class Index extends React.Component {
   state = {
     open: false,
   };
 
-  handleRequestClose = () => {
+  handleClose = () => {
     this.setState({
       open: false,
     });
@@ -36,15 +36,18 @@ class Index extends Component {
   };
 
   render() {
+    const { classes } = this.props;
+    const { open } = this.state;
+
     return (
-      <div style={styles.container}>
-        <Dialog open={this.state.open} onRequestClose={this.handleRequestClose}>
+      <div className={classes.root}>
+        <Dialog open={open} onClose={this.handleClose}>
           <DialogTitle>Super Secret Password</DialogTitle>
           <DialogContent>
             <DialogContentText>1-2-3-4-5</DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button color="primary" onClick={this.handleRequestClose}>
+            <Button color="primary" onClick={this.handleClose}>
               OK
             </Button>
           </DialogActions>
@@ -55,7 +58,7 @@ class Index extends Component {
         <Typography type="subheading" gutterBottom>
           example project
         </Typography>
-        <Button raised color="accent" onClick={this.handleClick}>
+        <Button raised color="secondary" onClick={this.handleClick}>
           Super Secret Password
         </Button>
       </div>
@@ -63,4 +66,8 @@ class Index extends Component {
   }
 }
 
-export default withRoot(Index);
+Index.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withRoot(withStyles(styles)(Index));

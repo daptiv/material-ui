@@ -1,6 +1,4 @@
-// @flow weak
-
-import React, { Children } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import withStyles from '../styles/withStyles';
@@ -12,29 +10,30 @@ export const styles = {
     overflowY: 'auto',
     listStyle: 'none',
     padding: 0,
+    WebkitOverflowScrolling: 'touch', // Add iOS momentum scrolling.
   },
 };
 
 function GridList(props) {
   const {
-    cols,
-    spacing,
     cellHeight,
     children,
     classes,
     className: classNameProp,
-    component: ComponentProp,
+    cols,
+    component: Component,
+    spacing,
     style,
     ...other
   } = props;
 
   return (
-    <ComponentProp
+    <Component
       className={classNames(classes.root, classNameProp)}
       style={{ margin: -spacing / 2, ...style }}
       {...other}
     >
-      {Children.map(children, currentChild => {
+      {React.Children.map(children, currentChild => {
         const childCols = currentChild.props.cols || 1;
         const childRows = currentChild.props.rows || 1;
 
@@ -49,7 +48,7 @@ function GridList(props) {
           ),
         });
       })}
-    </ComponentProp>
+    </Component>
   );
 }
 
@@ -78,7 +77,6 @@ GridList.propTypes = {
   /**
    * The component used for the root node.
    * Either a string to use a DOM element or a component.
-   * By default we map the type to a good default headline component.
    */
   component: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   /**
@@ -92,10 +90,10 @@ GridList.propTypes = {
 };
 
 GridList.defaultProps = {
-  cols: 2,
-  spacing: 4,
   cellHeight: 180,
+  cols: 2,
   component: 'ul',
+  spacing: 4,
 };
 
 export default withStyles(styles, { name: 'MuiGridList' })(GridList);
